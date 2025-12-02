@@ -1,0 +1,8 @@
+{
+  "_comments": {},
+  "BASE_URL": "http://localhost:8080",
+  "ENDPOINTS": {
+    "LOGIN": "/auth/login",
+    "HOSPITALITY": "/api/hospitality"
+  }
+}
