@@ -23,7 +23,7 @@ export default function RHFCalculatedField({
   }, [name, value, setValue]);
 
   return (
-    <Grid item size={{ xs: xs, sm: sm }}>
+    <Grid size={{ xs: xs, sm: sm }}>
       <TextField
         label={label}
         size="small"

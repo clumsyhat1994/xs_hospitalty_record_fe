@@ -10,8 +10,16 @@ const hospitalityApi = {
   get: (id) => api.get(`${getHospitalityPath()}/${id}`),
   filtered_list: (page = 0, size = 10) =>
     api.get(getHospitalityPath(), { params: { page, size } }),
-  create: (payload) => api.post(getHospitalityPath(), payload),
-  update: (id, payload) => api.put(`${getHospitalityPath()}/${id}`, payload),
+  create: (payload, confirm = false) =>
+    api.post(getHospitalityPath(), payload, {
+      params: confirm ? { confirm: true } : {},
+    }),
+  update: (id, payload, confirm = false) => {
+    console.log("api.update confirm =", confirm);
+    return api.put(`${getHospitalityPath()}/${id}`, payload, {
+      params: confirm === true ? { confirm: true } : {},
+    });
+  },
   deleteOne: (id) => api.delete(`${getHospitalityPath()}/${id}`),
   batchDelete: (ids) =>
     api.delete(`${getHospitalityPath()}/batch`, { params: { ids } }),

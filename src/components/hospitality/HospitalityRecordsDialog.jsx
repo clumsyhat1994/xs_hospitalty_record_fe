@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -18,6 +18,10 @@ import fieldLabels from "../../constants/fieldLables";
 import hospitalityApi from "../../api/hospitalityApi";
 import { validationMessages } from "../../constants/validationMessages";
 import { BEErrorFieldToFEFormFieldMap } from "../../constants/BEErrorFieldToFEFormFieldMap";
+import { FormModeProvider } from "../../context/FormModeContext";
+import { analyzeBackendErrors, SOFT_CODES } from "../../utils/errorUtils";
+import RHFComboBox from "../form/RHFComboBox";
+import { useMasterData } from "../../context/MasterDataContext";
 
 export default function HospitalityRecordDialog({
   open,
@@ -25,222 +29,275 @@ export default function HospitalityRecordDialog({
   isEditMode,
   onClose,
   onSave,
-  departments,
-  hospitalityTypes,
-  counterparties,
-  positions,
 }) {
   const methods = useForm({
     defaultValues: initialValues,
   });
 
   const { control, handleSubmit, reset, setError, getFieldState } = methods;
-
+  const [softConfirmOpen, setSoftConfirmOpen] = useState(false);
+  const {
+    departments,
+    hospitalityTypes,
+    positions,
+    counterparties,
+    setCounterparties,
+  } = useMasterData();
+  const [softErrors, setSoftErrors] = useState([]);
   useEffect(() => {
     reset(initialValues);
   }, [initialValues, open, reset]);
 
-  const submit = async (data) => {
-    console.log("clicke submit");
+  const cleanDataForUpdate = (data) => {
+    return Object.fromEntries(
+      Object.entries(data).filter(
+        ([, v]) => v !== null && v !== undefined && v !== ""
+      )
+    );
+  };
+
+  const submit = async (data, confirm = false) => {
+    console.log("clicked submit");
+
     try {
       let res;
       if (isEditMode) {
         // update
-        res = await hospitalityApi.update(initialValues.id, data);
+        res = await hospitalityApi.update(
+          initialValues.id,
+          cleanDataForUpdate(data),
+          confirm
+        );
+
         console.log(res.data);
       } else {
         // create
-        console.log("creating");
-        res = await hospitalityApi.create(data);
+        res = await hospitalityApi.create(data, confirm);
         console.log(res.data);
       }
+      setSoftConfirmOpen(false);
       onSave(res.data);
     } catch (err) {
       console.error(err);
-      const backendErrors = err.response?.data;
-      if (Array.isArray(backendErrors)) {
-        backendErrors.forEach((e) => {
-          const fieldName = BEErrorFieldToFEFormFieldMap[e.field] ?? e.field;
-          console.log(fieldName);
-          const fieldState = getFieldState(fieldName);
-          const existingErrorMessage = fieldState.error
-            ? fieldState.error?.message + "\n"
-            : "";
-          setError(fieldName, {
-            type: "server",
-            message:
-              existingErrorMessage + (validationMessages[e.code] ?? e.message),
-          });
-        });
-      } else {
-        console.error(err);
+
+      let errorData = err.response?.data;
+
+      if (!Array.isArray(errorData)) {
+        console.error(errorData?.message);
+        return;
       }
+      const { hasHardErrors } = analyzeBackendErrors(errorData);
+
+      if (hasHardErrors) {
+        errorData = errorData.filter((e) => !SOFT_CODES.includes(e.code));
+      } else {
+        setSoftConfirmOpen(true);
+        setSoftErrors(errorData);
+      }
+      errorData.forEach((e) => {
+        const fieldName = BEErrorFieldToFEFormFieldMap[e.field] ?? e.field;
+        const fieldState = getFieldState(fieldName);
+        const existingErrorMessage = fieldState.error
+          ? fieldState.error?.message + "\n"
+          : "";
+        setError(fieldName, {
+          type: "server",
+          message:
+            existingErrorMessage + (validationMessages[e.code] ?? e.message),
+        });
+      });
     }
   };
 
   return (
-    <FormProvider {...methods}>
-      <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-        <DialogTitle>{isEditMode ? "修改记录" : "新建记录"}</DialogTitle>
-        <DialogContent dividers>
-          <Grid container spacing={2} sx={{ mt: 0.5 }}>
-            <RHFTextField
-              name="receptionDate"
-              control={control}
-              label={fieldLabels.receptionDate}
-              type="date"
-              sm={4}
-              rules={{ required: "Reception date is required" }}
-            />
+    <FormModeProvider isEditMode={isEditMode}>
+      <FormProvider {...methods}>
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+          <DialogTitle>{isEditMode ? "修改记录" : "新建记录"}</DialogTitle>
+          <DialogContent dividers>
+            <Grid container spacing={2} sx={{ mt: 0.5 }}>
+              <RHFTextField
+                name="receptionDate"
+                //control={control}
+                label={fieldLabels.receptionDate}
+                type="date"
+                sm={4}
+                rules={{ required: "Reception date is required" }}
+              />
 
-            <RHFSelect
-              name="counterpartyId"
-              control={control}
-              label={fieldLabels.counterparty}
-              options={counterparties}
-              sm={8}
-              rules={{ required: "Counterparty is required" }}
-            />
+              <RHFComboBox
+                name="counterpartyId"
+                //control={control}
+                options={counterparties}
+                optionsSetter={setCounterparties}
+                label={fieldLabels.counterparty}
+                sm={8}
+                rules={{ required: "Counterparty is required" }}
+              />
 
-            <RHFSelect
-              name="departmentId"
-              control={control}
-              label={fieldLabels.department}
-              options={departments}
-              rules={{ required: "Department is required" }}
-            />
+              <RHFSelect
+                name="departmentId"
+                //control={control}
+                label={fieldLabels.department}
+                options={departments}
+                rules={{ required: "Department is required" }}
+              />
 
-            <RHFTextField
-              name="handlerName"
-              control={control}
-              label={fieldLabels.handlerName}
-            />
+              <RHFTextField
+                name="handlerName"
+                //control={control}
+                label={fieldLabels.handlerName}
+              />
 
-            <RHFSelect
-              name="hospitalityTypeId"
-              control={control}
-              label={fieldLabels.hospitalityType}
-              options={hospitalityTypes}
-              rules={{ required: "Hospitality type is required" }}
-            />
+              <RHFSelect
+                name="hospitalityTypeId"
+                //control={control}
+                label={fieldLabels.hospitalityType}
+                options={hospitalityTypes}
+                rules={{ required: "Hospitality type is required" }}
+              />
 
-            <RHFTextField
-              name="location"
-              control={control}
-              label={fieldLabels.location}
-            />
+              <RHFTextField
+                name="location"
+                //control={control}
+                label={fieldLabels.location}
+              />
 
-            <RHFTextField
-              name="invoiceDate"
-              control={control}
-              label={fieldLabels.invoiceDate}
-              type="date"
-              sm={4}
-            />
+              <RHFTextField
+                name="invoiceDate"
+                //control={control}
+                label={fieldLabels.invoiceDate}
+                type="date"
+                sm={4}
+              />
 
-            <RHFTextField
-              name="invoiceNumberString"
-              control={control}
-              label={fieldLabels.invoiceNumberString}
-              sm={8}
-            />
+              <RHFTextField
+                name="invoiceNumberString"
+                //control={control}
+                label={fieldLabels.invoiceNumberString}
+                sm={8}
+              />
 
-            <RHFTextField
-              name="invoiceAmount"
-              control={control}
-              label={fieldLabels.invoiceAmount}
-              type="number"
-            />
+              <RHFTextField
+                name="invoiceAmount"
+                //control={control}
+                label={fieldLabels.invoiceAmount}
+                type="number"
+              />
 
-            <RHFCalculatedGridTextField
-              label={fieldLabels.totalAmount}
-              name="totalAmount"
-              computeValue={(values) => {
-                const items = values?.items ?? [];
-                const itemsTotal = items.reduce(
-                  (sum, item) => sum + (Number(item?.lineTotal) || 0),
-                  0
-                );
-                return itemsTotal + Number(values?.invoiceAmount || 0);
-              }}
-            />
+              <RHFCalculatedGridTextField
+                label={fieldLabels.totalAmount}
+                name="totalAmount"
+                computeValue={(values) => {
+                  const items = values?.items ?? [];
+                  const itemsTotal = items.reduce(
+                    (sum, item) => sum + (Number(item?.lineTotal) || 0),
+                    0
+                  );
+                  return itemsTotal + Number(values?.invoiceAmount || 0);
+                }}
+              />
 
-            <RHFTextField
-              name="theirCount"
-              control={control}
-              label={fieldLabels.theirCount}
-              type="number"
-            />
-            <RHFTextField
-              name="ourCount"
-              control={control}
-              label={fieldLabels.ourCount}
-              type="number"
-            />
+              <RHFTextField
+                name="theirCount"
+                //control={control}
+                label={fieldLabels.theirCount}
+                type="number"
+              />
+              <RHFTextField
+                name="ourCount"
+                //control={control}
+                label={fieldLabels.ourCount}
+                type="number"
+              />
 
-            <RHFCalculatedGridTextField
-              label={fieldLabels.totalCount}
-              name="totalCount"
-              computeValue={(values) => {
-                const our = Number(values?.ourCount) || 0;
-                const their = Number(values?.theirCount) || 0;
-                return our + their;
-              }}
-            />
+              <RHFCalculatedGridTextField
+                label={fieldLabels.totalCount}
+                name="totalCount"
+                computeValue={(values) => {
+                  const our = Number(values?.ourCount) || 0;
+                  const their = Number(values?.theirCount) || 0;
+                  return our + their;
+                }}
+              />
 
-            <RHFCalculatedGridTextField
-              name="perCapitaAmount"
-              label={fieldLabels.perCapitaAmount}
-              computeValue={(values) => {
-                if (!values.totalCount) return "0.00";
-                const totalAmount = Number(values?.totalAmount) || 0;
-                const totalCount = Number(values?.totalCount) || 0;
-                return (totalAmount / totalCount).toFixed(2);
-              }}
-            />
-            <RHFSelect
-              name="ourHostPositionId"
-              control={control}
-              label={fieldLabels.ourHostPosition}
-              options={positions}
-              getOptionLabel={(d) => d.title}
-              getOptionValue={(d) => d.id}
-              rules={{ required: "我方主持招待人员职务 is required" }}
-            />
+              <RHFCalculatedGridTextField
+                name="perCapitaAmount"
+                label={fieldLabels.perCapitaAmount}
+                computeValue={(values) => {
+                  if (!values.totalCount) return "0.00";
+                  const totalAmount = Number(values?.totalAmount) || 0;
+                  const totalCount = Number(values?.totalCount) || 0;
+                  return (totalAmount / totalCount).toFixed(2);
+                }}
+              />
+              <RHFSelect
+                name="ourHostPositionId"
+                //control={control}
+                label={fieldLabels.ourHostPosition}
+                options={positions}
+                getOptionLabel={(d) => d.title}
+                getOptionValue={(d) => d.id}
+                rules={{ required: "我方主持招待人员职务 is required" }}
+              />
 
-            <RHFSelect
-              name="theirHostPositionId"
-              control={control}
-              label={fieldLabels.theirHostPosition}
-              options={positions}
-              getOptionLabel={(d) => d.title}
-              getOptionValue={(d) => d.id}
-              rules={{ required: "对方主持招待人员职务 is required" }}
-            />
+              <RHFSelect
+                name="theirHostPositionId"
+                //control={control}
+                label={fieldLabels.theirHostPosition}
+                options={positions}
+                getOptionLabel={(d) => d.title}
+                getOptionValue={(d) => d.id}
+                rules={{ required: "对方主持招待人员职务 is required" }}
+              />
 
-            <RHFTextField
-              name="deptHeadApprovalDate"
-              control={control}
-              label={fieldLabels.deptHeadApprovalDate}
-              type="date"
-            />
-            <RHFTextField
-              name="partySecretaryApprovalDate"
-              control={control}
-              label={fieldLabels.partySecretaryApprovalDate}
-              type="date"
-            />
-          </Grid>
-          <HospitalityItemsFieldArray control={control} name="items" />
-        </DialogContent>
+              <RHFTextField
+                name="deptHeadApprovalDate"
+                //control={control}
+                label={fieldLabels.deptHeadApprovalDate}
+                type="date"
+              />
+              <RHFTextField
+                name="partySecretaryApprovalDate"
+                //control={control}
+                label={fieldLabels.partySecretaryApprovalDate}
+                type="date"
+              />
+            </Grid>
+            <HospitalityItemsFieldArray control={control} name="items" />
+          </DialogContent>
 
-        <DialogActions>
-          <Button onClick={onClose}>取消</Button>
-          <Button variant="contained" onClick={handleSubmit(submit)}>
-            保存
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </FormProvider>
+          <DialogActions>
+            <Button onClick={onClose}>取消</Button>
+            <Button
+              variant="contained"
+              onClick={handleSubmit((data) => submit(data))}
+            >
+              保存
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog maxWidth="md" open={softConfirmOpen}>
+          <DialogTitle>请确认</DialogTitle>
+          <DialogContent>
+            {softErrors.map((e) => (
+              <div key={e.code}>
+                - {validationMessages[e.code] ?? e.message}
+              </div>
+            ))}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setSoftConfirmOpen(false)}>取消</Button>
+            <Button
+              variant="contained"
+              onClick={handleSubmit((data) => submit(data, true))}
+            >
+              确认提交
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </FormProvider>
+    </FormModeProvider>
   );
 }

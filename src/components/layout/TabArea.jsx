@@ -5,6 +5,7 @@ import Department from "../../pages/master_data/Department";
 import Counterparty from "../../pages/master_data/Counterparty";
 import Position from "../../pages/master_data/Position";
 import Grade from "../../pages/master_data/Grade";
+import { MasterDataProvider } from "../../context/MasterDataContext";
 
 const componentMap = {
   records: <HospitalityRecords />,
@@ -27,8 +28,9 @@ export default function TabArea({ tabs, activeTab, setActiveTab }) {
           <Tab key={tab.key} label={tab.label} value={tab.key} />
         ))}
       </Tabs>
-
-      <Box sx={{ mt: 2 }}>{activeTab && componentMap[activeTab]}</Box>
+      <MasterDataProvider>
+        <Box sx={{ mt: 2 }}>{activeTab && componentMap[activeTab]}</Box>
+      </MasterDataProvider>
     </Box>
   );
 }

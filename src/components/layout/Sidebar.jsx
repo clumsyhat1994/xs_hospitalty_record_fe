@@ -7,6 +7,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
 import { useState } from "react";
+import menuLables from "../../constants/menuLables";
 
 export default function Sidebar({ onOpenModule }) {
   const [masterOpen, setMasterOpen] = useState(true);
@@ -18,22 +19,28 @@ export default function Sidebar({ onOpenModule }) {
       <List>
         <ListItemButton
           onClick={() =>
-            onOpenModule({ key: "records", label: "Hospitality Records" })
+            onOpenModule({
+              key: "records",
+              label: menuLables.HOSPITALITY_RECORDS,
+            })
           }
         >
-          <ListItemText primary="Hospitality Records" />
+          <ListItemText primary={menuLables.HOSPITALITY_RECORDS} />
         </ListItemButton>
 
         <ListItemButton
           onClick={() =>
-            onOpenModule({ key: "conflicts", label: "Invoice Conflicts" })
+            onOpenModule({
+              key: "conflicts",
+              label: menuLables.INVOICE_CONFLICTS,
+            })
           }
         >
-          <ListItemText primary="Invoice Conflicts" />
+          <ListItemText primary={menuLables.INVOICE_CONFLICTS} />
         </ListItemButton>
 
         <ListItemButton onClick={toggleMaster}>
-          <ListItemText primary="Master Data" sx={{ pl: 2, pt: 2 }} />
+          <ListItemText primary={menuLables.MASTER_DATA} />
           {masterOpen ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
 
@@ -41,32 +48,40 @@ export default function Sidebar({ onOpenModule }) {
           <List component="div" disablePadding>
             <ListItemButton
               onClick={() =>
-                onOpenModule({ key: "department", label: "Department" })
+                onOpenModule({
+                  key: "departments",
+                  label: menuLables.DEPARTMENTS,
+                })
               }
             >
-              <ListItemText primary="Department" />
+              <ListItemText primary={menuLables.DEPARTMENTS} sx={{ pl: 2 }} />
             </ListItemButton>
 
             <ListItemButton
               onClick={() =>
-                onOpenModule({ key: "counterparty", label: "Counterparty" })
+                onOpenModule({
+                  key: "counterparty",
+                  label: menuLables.COUNTERPARTY,
+                })
               }
             >
-              <ListItemText primary="Counterparty" />
+              <ListItemText primary={menuLables.COUNTERPARTY} sx={{ pl: 2 }} />
             </ListItemButton>
 
             <ListItemButton
               onClick={() =>
-                onOpenModule({ key: "position", label: "Position" })
+                onOpenModule({ key: "position", label: menuLables.POSITIONS })
               }
             >
-              <ListItemText primary="Position" />
+              <ListItemText primary={menuLables.POSITIONS} sx={{ pl: 2 }} />
             </ListItemButton>
 
             <ListItemButton
-              onClick={() => onOpenModule({ key: "grade", label: "Grade" })}
+              onClick={() =>
+                onOpenModule({ key: "grade", label: menuLables.GRADE })
+              }
             >
-              <ListItemText primary="Grade" />
+              <ListItemText primary={menuLables.GRADE} sx={{ pl: 2 }} />
             </ListItemButton>
           </List>
         </Collapse>

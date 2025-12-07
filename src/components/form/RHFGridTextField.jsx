@@ -1,9 +1,8 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { Grid, TextField } from "@mui/material";
-
+import { useFormMode } from "../../context/FormModeContext";
 export default function RHFTextField({
   name,
-  // control,
   label,
   type = "text",
   xs = 12,
@@ -12,18 +11,19 @@ export default function RHFTextField({
   ...rest
 }) {
   const { clearErrors, control } = useFormContext();
+  const { isEditMode } = useFormMode();
   return (
-    <Grid item size={{ xs: xs, sm: sm }}>
+    <Grid size={{ xs: xs, sm: sm }}>
       <Controller
         name={name}
         control={control}
-        rules={rules}
+        rules={!isEditMode ? { required: "不能为空", ...rules } : rules}
         render={({ field, fieldState: { error } }) => (
           <TextField
             {...field}
             onChange={(e) => {
               field.onChange(e);
-              clearErrors(name); // remove server error when user edits
+              if (error?.type === "server") clearErrors(name);
             }}
             fullWidth
             size="small"

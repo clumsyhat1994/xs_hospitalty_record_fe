@@ -7,7 +7,38 @@ import { getBaseUrl } from "./config/runtimeConfig.js";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { zhCN } from "@mui/material/locale";
 
-const theme = createTheme({}, zhCN);
+const theme = createTheme(
+  {
+    components: {
+      MuiButtonBase: {
+        defaultProps: {
+          // The props to change the default for.
+          disableRipple: true,
+        },
+        // styleOverrides: {
+        //   root: {
+        //     fontSize: "1rem",
+        //     "& .MuiTouchRipple-rippleVisible": {
+        //       animationDuration: "2000ms",
+        //     },
+        //     "& .MuiTouchRipple-child": {
+        //       animationDuration: "2000ms",
+        //     },
+        //   },
+        // },
+      },
+
+      // 2) Dialog transition speed
+      MuiDialog: {
+        defaultProps: {
+          transitionDuration: 0,
+        },
+      },
+    },
+  },
+  zhCN
+);
+
 async function loadConfig() {
   try {
     const res = await fetch("/runtime-config.json", {

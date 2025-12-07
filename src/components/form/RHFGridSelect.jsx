@@ -1,10 +1,10 @@
 // src/components/form/RHFSelect.jsx
 import { Controller, useFormContext } from "react-hook-form";
 import { Grid, TextField, MenuItem } from "@mui/material";
+import { useFormMode } from "../../context/FormModeContext";
 
 export default function RHFSelect({
   name,
-  // control,
   label,
   options,
   getOptionLabel = (opt) => opt.name ?? String(opt),
@@ -15,12 +15,13 @@ export default function RHFSelect({
   ...rest
 }) {
   const { clearErrors, control } = useFormContext();
+  const { isEditMode } = useFormMode();
   return (
-    <Grid item size={{ xs: xs, sm: sm }}>
+    <Grid size={{ xs: xs, sm: sm }}>
       <Controller
         name={name}
         control={control}
-        rules={rules}
+        rules={!isEditMode ? { required: "不能为空", ...rules } : rules}
         render={({ field, fieldState: { error } }) => {
           return (
             <TextField
@@ -28,7 +29,7 @@ export default function RHFSelect({
               value={field.value ?? ""}
               onChange={(e) => {
                 field.onChange(e);
-                clearErrors(name); // remove server error when user edits
+                if (error?.type === "server") clearErrors(name);
               }}
               select
               fullWidth

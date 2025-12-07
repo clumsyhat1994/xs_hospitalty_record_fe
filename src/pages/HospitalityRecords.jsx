@@ -30,6 +30,10 @@ import HospitalityRecordsToolBar from "../components/hospitality/HospitalityReco
 import HospitalityRecordDialog from "../components/hospitality/HospitalityRecordsDialog";
 import HospitalityRecordsTable from "../components/hospitality/HospitalityRecordsTable";
 import masterDataApi from "../api/masterDataApi";
+import {
+  MasterDataProvider,
+  useMasterData,
+} from "../context/MasterDataContext";
 const emptyRecord = {
   id: null,
   receptionDate: "2025-12-30",
@@ -58,60 +62,46 @@ export default function HospitalityRecords() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
-  const [departments, setDepartments] = useState([]);
-  const [hospitalityTypes, setHospitalityTypes] = useState([]);
-  const [counterparties, setCounterparties] = useState([]);
-  const [positions, setPositions] = useState([]);
+  // const [departments, setDepartments] = useState([]);
+  // const [hospitalityTypes, setHospitalityTypes] = useState([]);
+  // const [counterparties, setCounterparties] = useMasterData();
+  // const [positions, setPositions] = useState([]);
 
-  useEffect(() => {
-    let cancelled = false;
+  // useEffect(() => {
+  //   let cancelled = false;
 
-    // hospitalityApi
-    //   .filtered_list()
-    //   .then((res) => {
-    //     console.log(res.data);
-    //     if (!cancelled) {
-    //       setRecords(res.data.content);
-    //     }
-    //   })
-    //   .catch((err) => console.error(err));
+  //   masterDataApi
+  //     .listDepartments()
+  //     .then((res) => {
+  //       if (!cancelled) setDepartments(res.data.content || []);
+  //     })
+  //     .catch((err) => console.error("Failed to load departments", err));
 
-    masterDataApi
-      .listDepartments()
-      .then((res) => {
-        console.log(res.data);
-        if (!cancelled) setDepartments(res.data.content || []);
-      })
-      .catch((err) => console.error("Failed to load departments", err));
+  //   masterDataApi
+  //     .listHospitalityTypes()
+  //     .then((res) => {
+  //       if (!cancelled) setHospitalityTypes(res.data.content || []);
+  //     })
+  //     .catch((err) => console.error("Failed to load hospitality types", err));
 
-    masterDataApi
-      .listHospitalityTypes()
-      .then((res) => {
-        console.log(res.data);
-        if (!cancelled) setHospitalityTypes(res.data.content || []);
-      })
-      .catch((err) => console.error("Failed to load hospitality types", err));
+  //   masterDataApi
+  //     .listCounterParties()
+  //     .then((res) => {
+  //       if (!cancelled) setCounterparties(res.data.content || []);
+  //     })
+  //     .catch((err) => console.error("Failed to load counterparties", err));
 
-    masterDataApi
-      .listCounterParties()
-      .then((res) => {
-        console.log(res.data);
-        if (!cancelled) setCounterparties(res.data.content || []);
-      })
-      .catch((err) => console.error("Failed to load counterparties", err));
+  //   masterDataApi
+  //     .listPositions()
+  //     .then((res) => {
+  //       if (!cancelled) setPositions(res.data.content || []);
+  //     })
+  //     .catch((err) => console.error("Failed to load positions", err));
 
-    masterDataApi
-      .listPositions()
-      .then((res) => {
-        console.log(res.data);
-        if (!cancelled) setPositions(res.data.content || []);
-      })
-      .catch((err) => console.error("Failed to load positions", err));
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  //   return () => {
+  //     cancelled = true;
+  //   };
+  // }, [setCounterparties]);
 
   const handleToggleAll = (checked) => {
     if (checked) {
@@ -149,7 +139,6 @@ export default function HospitalityRecords() {
     if (!window.confirm(`Delete ${selectedIds.length} selected records?`)) {
       return;
     }
-    // TODO: call hospitalityApi.batchDelete(selectedIds)
     setRecords((prev) => prev.filter((r) => !selectedIds.includes(r.id)));
     setSelectedIds([]);
   };
@@ -159,26 +148,14 @@ export default function HospitalityRecords() {
   };
 
   const handleDialogSave = async (values) => {
-    // try {
-    //   let res;
     if (editingRecord) {
-      // update
-      // res = await hospitalityApi.update(editingRecord.id, values);
-      // console.log(res.data);
       setRecords((prev) =>
         prev.map((r) => (r.id === editingRecord.id ? { ...r, ...values } : r))
       );
     } else {
-      // create
-      // res = hospitalityApi.create(values);
-
-      // console.log(res.response.data);
       setRecords((prev) => [values, ...prev]);
     }
     setDialogOpen(false);
-    // } catch (err) {
-    //   console.error(err);
-    // }
   };
 
   return (
@@ -205,10 +182,10 @@ export default function HospitalityRecords() {
         isEditMode={!!editingRecord}
         onClose={handleDialogClose}
         onSave={handleDialogSave}
-        departments={departments}
-        hospitalityTypes={hospitalityTypes}
-        counterparties={counterparties}
-        positions={positions}
+        // departments={departments}
+        // hospitalityTypes={hospitalityTypes}
+        // counterparties={counterparties}
+        // positions={positions}
       />
     </Box>
   );
