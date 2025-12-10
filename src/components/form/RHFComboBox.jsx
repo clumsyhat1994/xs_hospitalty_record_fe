@@ -22,10 +22,10 @@ export default function RHFComboBox({
 
   useEffect(() => {
     const handle = setTimeout(() => {
-      masterDataApi.counterpartySearch(keyword).then((res) => {
+      masterDataApi.searchCounterParties(keyword).then((res) => {
         optionsSetter(res.data);
       });
-    }, 300);
+    }, 150);
 
     return () => clearTimeout(handle);
   }, [keyword, optionsSetter]);
@@ -36,39 +36,42 @@ export default function RHFComboBox({
         name={name}
         control={control}
         rules={!isEditMode ? { required: "不能为空", ...rules } : rules}
-        render={({ field, fieldState: { error } }) => (
-          <Autocomplete
-            options={options}
-            getOptionLabel={getOptionLabel}
-            isOptionEqualToValue={(opt, val) =>
-              getOptionValue(opt) === getOptionValue(val)
-            }
-            value={
-              options.find((o) => getOptionValue(o) === field.value) || null
-            }
-            onInputChange={(event, newInputValue) => {
-              setKeyword(newInputValue);
-            }}
-            onChange={(_, newVal) => {
-              field.onChange(newVal ? getOptionValue(newVal) : null);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                size="small"
-                label={label}
-                error={!!error}
-                slotProps={{
-                  inputLabel: {
-                    shrink: true,
-                  },
-                }}
-                helperText={error?.message}
-              />
-            )}
-            {...rest}
-          />
-        )}
+        render={({ field, fieldState: { error } }) => {
+          return (
+            <Autocomplete
+              options={options ?? []}
+              filterOptions={(x) => x}
+              getOptionLabel={getOptionLabel}
+              isOptionEqualToValue={(opt, val) =>
+                getOptionValue(opt) === getOptionValue(val)
+              }
+              value={
+                options.find((o) => getOptionValue(o) === field.value) || null
+              }
+              onInputChange={(event, newInputValue) => {
+                setKeyword(newInputValue);
+              }}
+              onChange={(_, newVal) => {
+                field.onChange(newVal ? getOptionValue(newVal) : null);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  size="small"
+                  label={label}
+                  error={!!error}
+                  slotProps={{
+                    inputLabel: {
+                      shrink: true,
+                    },
+                  }}
+                  helperText={error?.message}
+                />
+              )}
+              {...rest}
+            />
+          );
+        }}
       />
     </Grid>
   );

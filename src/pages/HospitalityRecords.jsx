@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   Box,
@@ -29,22 +29,20 @@ import hospitalityApi from "../api/hospitalityApi";
 import HospitalityRecordsToolBar from "../components/hospitality/HospitalityRecordsToolbar";
 import HospitalityRecordDialog from "../components/hospitality/HospitalityRecordsDialog";
 import HospitalityRecordsTable from "../components/hospitality/HospitalityRecordsTable";
-import masterDataApi from "../api/masterDataApi";
-import {
-  MasterDataProvider,
-  useMasterData,
-} from "../context/MasterDataContext";
+
+import { MasterDataProvider } from "../context/MasterDataContext";
+import { downloadBlob } from "../utils/downloadBlob";
 const emptyRecord = {
   id: null,
   receptionDate: "2025-12-30",
-  counterpartyId: "1",
+  counterpartyId: 1,
   invoiceAmount: "1688",
   handlerName: "张三",
   deptHeadApprovalDate: "2023-10-28",
   partySecretaryApprovalDate: "2023-10-29",
   invoiceDate: "2023-10-30",
   invoiceNumberString: "25444000000006604608",
-  departmentId: "1",
+  departmentCode: "SHENG",
   hospitalityTypeId: "1",
   location: "餐厅",
   theirCount: "8",
@@ -62,46 +60,47 @@ export default function HospitalityRecords() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
-  // const [departments, setDepartments] = useState([]);
-  // const [hospitalityTypes, setHospitalityTypes] = useState([]);
-  // const [counterparties, setCounterparties] = useMasterData();
-  // const [positions, setPositions] = useState([]);
+  const [draftFilters, setDraftFilters] = useState({
+    receptionDateFrom: "",
+    receptionDateTo: "",
+  });
+  const [page, setPage] = useState(0);
+  const [filters, setFilters] = useState({
+    receptionDateFrom: "",
+    receptionDateTo: "",
+  });
 
-  // useEffect(() => {
-  //   let cancelled = false;
+  const handleExport = async () => {
+    try {
+      const res = await hospitalityApi.export(filters);
+      const blob = new Blob([res.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      downloadBlob(blob, "hospitality-records.xlsx");
+    } catch (err) {
+      console.error("Export failed", err);
+      window.alert("导出失败，请联系系统管理员。");
+    }
+  };
 
-  //   masterDataApi
-  //     .listDepartments()
-  //     .then((res) => {
-  //       if (!cancelled) setDepartments(res.data.content || []);
-  //     })
-  //     .catch((err) => console.error("Failed to load departments", err));
+  const handleDraftFilterChange = (field, value) => {
+    setDraftFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
-  //   masterDataApi
-  //     .listHospitalityTypes()
-  //     .then((res) => {
-  //       if (!cancelled) setHospitalityTypes(res.data.content || []);
-  //     })
-  //     .catch((err) => console.error("Failed to load hospitality types", err));
+  const handleSearch = () => {
+    setFilters(draftFilters);
+    setPage(0);
+  };
 
-  //   masterDataApi
-  //     .listCounterParties()
-  //     .then((res) => {
-  //       if (!cancelled) setCounterparties(res.data.content || []);
-  //     })
-  //     .catch((err) => console.error("Failed to load counterparties", err));
-
-  //   masterDataApi
-  //     .listPositions()
-  //     .then((res) => {
-  //       if (!cancelled) setPositions(res.data.content || []);
-  //     })
-  //     .catch((err) => console.error("Failed to load positions", err));
-
-  //   return () => {
-  //     cancelled = true;
-  //   };
-  // }, [setCounterparties]);
+  const handleClear = () => {
+    const empty = { receptionDateFrom: "", receptionDateTo: "" };
+    setDraftFilters(empty);
+    setFilters(empty);
+    setPage(0);
+  };
 
   const handleToggleAll = (checked) => {
     if (checked) {
@@ -160,33 +159,39 @@ export default function HospitalityRecords() {
 
   return (
     <Box>
-      <Paper elevation={2}>
-        <HospitalityRecordsToolBar
-          selectedCount={selectedIds.length}
-          onCreate={handleCreateClick}
-          onBatchDelete={handleBatchDeleteClick}
+      <MasterDataProvider>
+        <Paper elevation={2}>
+          <HospitalityRecordsToolBar
+            selectedCount={selectedIds.length}
+            draftFilters={draftFilters}
+            onDraftFilterChange={handleDraftFilterChange}
+            onSearch={handleSearch}
+            onClear={handleClear}
+            onCreate={handleCreateClick}
+            onBatchDelete={handleBatchDeleteClick}
+            onExport={handleExport}
+          />
+          <HospitalityRecordsTable
+            filters={filters}
+            page={page}
+            setPage={setPage}
+            records={records}
+            setRecords={setRecords}
+            selectedIds={selectedIds}
+            onToggleAll={handleToggleAll}
+            onToggleOne={handleToggleOne}
+            onEditRow={handleEditRow}
+            onDeleteRow={handleDeleteRow}
+          />
+        </Paper>
+        <HospitalityRecordDialog
+          open={dialogOpen}
+          initialValues={editingRecord || emptyRecord}
+          isEditMode={!!editingRecord}
+          onClose={handleDialogClose}
+          onSave={handleDialogSave}
         />
-        <HospitalityRecordsTable
-          records={records}
-          setRecords={setRecords}
-          selectedIds={selectedIds}
-          onToggleAll={handleToggleAll}
-          onToggleOne={handleToggleOne}
-          onEditRow={handleEditRow}
-          onDeleteRow={handleDeleteRow}
-        />
-      </Paper>
-      <HospitalityRecordDialog
-        open={dialogOpen}
-        initialValues={editingRecord || emptyRecord}
-        isEditMode={!!editingRecord}
-        onClose={handleDialogClose}
-        onSave={handleDialogSave}
-        // departments={departments}
-        // hospitalityTypes={hospitalityTypes}
-        // counterparties={counterparties}
-        // positions={positions}
-      />
+      </MasterDataProvider>
     </Box>
   );
 }

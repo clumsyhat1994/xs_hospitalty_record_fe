@@ -35,11 +35,13 @@ export default function HospitalityRecordsTable({
   onToggleOne,
   onEditRow,
   onDeleteRow,
+  page,
+  setPage,
+  filters,
 }) {
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10);
 
+  const [size, setSize] = useState(10);
   const [totalElements, setTotalElements] = useState(0);
 
   const allSelected =
@@ -47,34 +49,16 @@ export default function HospitalityRecordsTable({
   const indeterminate =
     selectedIds.length > 0 && selectedIds.length < records.length;
 
-  // const fetchRecords = async (page, size) => {
-  //   setLoading(true);
-  //   try {
-  //     const res = await hospitalityApi.filtered_list(page, size);
-  //     const data = res.data;
-
-  //     setRecords(data.content);
-  //     setPage(data.number);
-  //     setSize(data.size);
-  //     setTotalElements(data.totalElements);
-  //   } catch (e) {
-  //     console.error("Failed to load records", e);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   useEffect(() => {
     let cancelled = false;
 
     const load = async () => {
       setLoading(true);
       try {
-        const res = await hospitalityApi.filtered_list(page, size);
+        const res = await hospitalityApi.filtered_list(page, size, filters);
         if (!cancelled) {
           const data = res.data;
           setRecords(data.content);
-          //setPage(data.number);
-          //setSize(data.size);
           setTotalElements(data.totalElements);
         }
       } catch (e) {
@@ -89,7 +73,7 @@ export default function HospitalityRecordsTable({
     return () => {
       cancelled = true;
     };
-  }, [page, size, setRecords]);
+  }, [page, size, setRecords, filters]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);

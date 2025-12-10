@@ -1,25 +1,115 @@
-import { Toolbar, Typography, Stack, Button } from "@mui/material";
+import {
+  Toolbar,
+  Typography,
+  Stack,
+  Button,
+  TextField,
+  Grid,
+  Tooltip,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-
+import SearchIcon from "@mui/icons-material/Search";
+import ClearIcon from "@mui/icons-material/Clear";
+import DownloadIcon from "@mui/icons-material/Download";
 export default function HospitalityRecordsToolbar({
   selectedCount,
   onCreate,
   onBatchDelete,
+  draftFilters,
+  onDraftFilterChange,
+  onSearch,
+  onClear,
+  onExport,
 }) {
   return (
     <Toolbar
       sx={{
         display: "flex",
         justifyContent: "space-between",
-        gap: 2,
+        //gap: 2,
       }}
     >
       <Typography variant="h6">招待台帐</Typography>
+      <Grid container spacing={2}>
+        <Grid>
+          <TextField
+            label="接待日期自"
+            type="date"
+            fullWidth
+            size="small"
+            slotProps={{
+              inputLabel: {
+                shrink: true,
+              },
+            }}
+            value={draftFilters.receptionDateFrom}
+            onChange={(e) =>
+              onDraftFilterChange("receptionDateFrom", e.target.value)
+            }
+          />
+        </Grid>
+
+        <Grid>
+          <TextField
+            label="接待日期至"
+            type="date"
+            fullWidth
+            size="small"
+            slotProps={{
+              inputLabel: {
+                shrink: true,
+              },
+            }}
+            value={draftFilters.receptionDateTo}
+            onChange={(e) =>
+              onDraftFilterChange("receptionDateTo", e.target.value)
+            }
+          />
+        </Grid>
+
+        <Grid sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Button
+            variant="contained"
+            startIcon={<SearchIcon />}
+            onClick={onSearch}
+          >
+            查询
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<ClearIcon />}
+            onClick={onClear}
+          >
+            清空
+          </Button>
+        </Grid>
+      </Grid>
       <Stack direction="row" spacing={2}>
         <Button variant="contained" startIcon={<AddIcon />} onClick={onCreate}>
           新建记录
         </Button>
+        <Tooltip
+          title="导出当前筛选结果(不考虑勾选框)为Excel文件"
+          slotProps={{
+            tooltip: {
+              sx: {
+                maxWidth: "200px",
+                width: "auto",
+                fontSize: "0.8rem",
+                padding: "12px 16px",
+              },
+            },
+          }}
+        >
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+            onClick={onExport}
+          >
+            导出 Excel
+          </Button>
+        </Tooltip>
         <Button
           variant="outlined"
           color="error"

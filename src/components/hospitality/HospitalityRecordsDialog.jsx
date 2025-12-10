@@ -22,6 +22,10 @@ import { FormModeProvider } from "../../context/FormModeContext";
 import { analyzeBackendErrors, SOFT_CODES } from "../../utils/errorUtils";
 import RHFComboBox from "../form/RHFComboBox";
 import { useMasterData } from "../../context/MasterDataContext";
+import {
+  getCurrentUserFromToken,
+  isAdmin as isAdminFn,
+} from "../../auth/authService";
 
 export default function HospitalityRecordDialog({
   open,
@@ -34,7 +38,8 @@ export default function HospitalityRecordDialog({
     defaultValues: initialValues,
   });
 
-  const { control, handleSubmit, reset, setError, getFieldState } = methods;
+  const { control, handleSubmit, reset, setError, setValue, getFieldState } =
+    methods;
   const [softConfirmOpen, setSoftConfirmOpen] = useState(false);
   const {
     departments,
@@ -44,8 +49,14 @@ export default function HospitalityRecordDialog({
     setCounterparties,
   } = useMasterData();
   const [softErrors, setSoftErrors] = useState([]);
+
+  const user = getCurrentUserFromToken();
+  const isAdmin = isAdminFn(user);
+
   useEffect(() => {
     reset(initialValues);
+
+    if (!isAdmin) setValue("departmentCode", user.departmentCode);
   }, [initialValues, open, reset]);
 
   const cleanDataForUpdate = (data) => {
@@ -112,7 +123,13 @@ export default function HospitalityRecordDialog({
   return (
     <FormModeProvider isEditMode={isEditMode}>
       <FormProvider {...methods}>
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+        <Dialog
+          //keepMounted
+          open={open}
+          onClose={onClose}
+          fullWidth
+          maxWidth="md"
+        >
           <DialogTitle>{isEditMode ? "修改记录" : "新建记录"}</DialogTitle>
           <DialogContent dividers>
             <Grid container spacing={2} sx={{ mt: 0.5 }}>
@@ -128,7 +145,7 @@ export default function HospitalityRecordDialog({
               <RHFComboBox
                 name="counterpartyId"
                 //control={control}
-                options={counterparties}
+                options={counterparties ?? []}
                 optionsSetter={setCounterparties}
                 label={fieldLabels.counterparty}
                 sm={8}
@@ -136,10 +153,12 @@ export default function HospitalityRecordDialog({
               />
 
               <RHFSelect
-                name="departmentId"
+                name="departmentCode"
                 //control={control}
+                getOptionValue={(opt) => opt.code ?? opt}
                 label={fieldLabels.department}
-                options={departments}
+                options={departments ?? []}
+                isAdmin={isAdmin}
                 rules={{ required: "Department is required" }}
               />
 
@@ -153,7 +172,7 @@ export default function HospitalityRecordDialog({
                 name="hospitalityTypeId"
                 //control={control}
                 label={fieldLabels.hospitalityType}
-                options={hospitalityTypes}
+                options={hospitalityTypes ?? []}
                 rules={{ required: "Hospitality type is required" }}
               />
 
@@ -235,7 +254,7 @@ export default function HospitalityRecordDialog({
                 name="ourHostPositionId"
                 //control={control}
                 label={fieldLabels.ourHostPosition}
-                options={positions}
+                options={positions ?? []}
                 getOptionLabel={(d) => d.title}
                 getOptionValue={(d) => d.id}
                 rules={{ required: "我方主持招待人员职务 is required" }}
@@ -245,7 +264,7 @@ export default function HospitalityRecordDialog({
                 name="theirHostPositionId"
                 //control={control}
                 label={fieldLabels.theirHostPosition}
-                options={positions}
+                options={positions ?? []}
                 getOptionLabel={(d) => d.title}
                 getOptionValue={(d) => d.id}
                 rules={{ required: "对方主持招待人员职务 is required" }}
@@ -279,7 +298,7 @@ export default function HospitalityRecordDialog({
         </Dialog>
 
         <Dialog maxWidth="md" open={softConfirmOpen}>
-          <DialogTitle>请确认</DialogTitle>
+          <DialogTitle>你确定要提交吗？？</DialogTitle>
           <DialogContent>
             {softErrors.map((e) => (
               <div key={e.code}>

@@ -2,14 +2,13 @@ import api from "./api";
 import { getEndpoint } from "../config/runtimeConfig";
 
 function getHospitalityPath() {
-  // runtime-config override, with a sane default
   return getEndpoint("HOSPITALITY");
 }
 
 const hospitalityApi = {
   get: (id) => api.get(`${getHospitalityPath()}/${id}`),
-  filtered_list: (page = 0, size = 10) =>
-    api.get(getHospitalityPath(), { params: { page, size } }),
+  filtered_list: (page = 0, size = 10, filters = {}) =>
+    api.get(getHospitalityPath(), { params: { page, size, ...filters } }),
   create: (payload, confirm = false) =>
     api.post(getHospitalityPath(), payload, {
       params: confirm ? { confirm: true } : {},
@@ -23,6 +22,11 @@ const hospitalityApi = {
   deleteOne: (id) => api.delete(`${getHospitalityPath()}/${id}`),
   batchDelete: (ids) =>
     api.delete(`${getHospitalityPath()}/batch`, { params: { ids } }),
+  export: (filters = {}) =>
+    api.get(`${getHospitalityPath()}/export`, {
+      params: { ...filters },
+      responseType: "blob",
+    }),
 };
 
 export default hospitalityApi;

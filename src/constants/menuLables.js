@@ -4,7 +4,7 @@ const menuLables = {
   COUNTERPARTY: "招待对象",
   MASTER_DATA: "字段数据",
   DEPARTMENTS: "部门",
-  POSITIONS: "职称",
+  POSITIONS: "职务",
   GRADE: "职级",
 };
 export default menuLables;

@@ -26,6 +26,7 @@ export function MasterDataProvider({ children }) {
       masterDataApi.listPositions(),
     ])
       .then(([dep, types, cp, pos]) => {
+        console.log(dep);
         setDepartments(dep.data?.content || []);
         setHospitalityTypes(types.data?.content || []);
         setCounterparties(cp.data?.content || []);

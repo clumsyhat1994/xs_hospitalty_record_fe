@@ -6,6 +6,7 @@ import Counterparty from "../../pages/master_data/Counterparty";
 import Position from "../../pages/master_data/Position";
 import Grade from "../../pages/master_data/Grade";
 import { MasterDataProvider } from "../../context/MasterDataContext";
+import SequentialInvoiceNumber from "../../pages/SequentialInvoiceNumber";
 
 const componentMap = {
   records: <HospitalityRecords />,
@@ -14,6 +15,7 @@ const componentMap = {
   counterparty: <Counterparty />,
   position: <Position />,
   grade: <Grade />,
+  invoice_conflicts: <SequentialInvoiceNumber />,
 };
 
 export default function TabArea({ tabs, activeTab, setActiveTab }) {
@@ -21,16 +23,15 @@ export default function TabArea({ tabs, activeTab, setActiveTab }) {
     <Box>
       <Tabs
         value={activeTab} //which tab is currently selected
-        onChange={(e, v) => setActiveTab(v)} // e is event object, which we don't use. v is the value of the tab selected
+        onChange={(e, v) => setActiveTab(v)}
         aria-label="module tabs" //for accessibility
       >
         {tabs.map((tab) => (
           <Tab key={tab.key} label={tab.label} value={tab.key} />
         ))}
       </Tabs>
-      <MasterDataProvider>
-        <Box sx={{ mt: 2 }}>{activeTab && componentMap[activeTab]}</Box>
-      </MasterDataProvider>
+
+      <Box sx={{ mt: 2 }}>{activeTab && componentMap[activeTab]}</Box>
     </Box>
   );
 }

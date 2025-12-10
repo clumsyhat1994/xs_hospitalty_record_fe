@@ -31,7 +31,7 @@ export default function Sidebar({ onOpenModule }) {
         <ListItemButton
           onClick={() =>
             onOpenModule({
-              key: "conflicts",
+              key: "invoice_conflicts",
               label: menuLables.INVOICE_CONFLICTS,
             })
           }
