@@ -14,8 +14,10 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import hospitalityApi from "../../api/hospitalityApi";
+import fieldLabels from "../../constants/recordFieldLabels";
+import { ItemsPopperCell } from "./ItemsPopperCell";
 
 function formatDate(value) {
   if (!value) return "";
@@ -38,42 +40,44 @@ export default function HospitalityRecordsTable({
   page,
   setPage,
   filters,
+  size,
+  setSize,
+  totalElements,
+  setTotalElements,
+  load,
+  loading,
+  setLoading,
 }) {
-  const [loading, setLoading] = useState(false);
-
-  const [size, setSize] = useState(10);
-  const [totalElements, setTotalElements] = useState(0);
-
   const allSelected =
     records.length > 0 && selectedIds.length === records.length;
   const indeterminate =
     selectedIds.length > 0 && selectedIds.length < records.length;
 
   useEffect(() => {
-    let cancelled = false;
-
-    const load = async () => {
-      setLoading(true);
-      try {
-        const res = await hospitalityApi.filtered_list(page, size, filters);
-        if (!cancelled) {
-          const data = res.data;
-          setRecords(data.content);
-          setTotalElements(data.totalElements);
-        }
-      } catch (e) {
-        if (!cancelled) console.error(e);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-
-    load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [page, size, setRecords, filters]);
+    const controller = new AbortController();
+    load(controller.signal);
+    return () => controller.abort();
+    // let cancelled = false;
+    // const load = async () => {
+    //   setLoading(true);
+    //   try {
+    //     const res = await hospitalityApi.filtered_list(page, size, filters);
+    //     if (!cancelled) {
+    //       const data = res.data;
+    //       setRecords(data.content);
+    //       setTotalElements(data.totalElements);
+    //     }
+    //   } catch (e) {
+    //     if (!cancelled) console.error(e);
+    //   } finally {
+    //     if (!cancelled) setLoading(false);
+    //   }
+    // };
+    // load();
+    // return () => {
+    //   cancelled = true;
+    // };
+  }, [load]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -100,38 +104,59 @@ export default function HospitalityRecordsTable({
             <TableCell padding="checkbox" align="center">
               操作
             </TableCell>
-            <TableCell sx={{ minWidth: 120 }}>接待日期</TableCell>
-            <TableCell sx={{ minWidth: 150 }}>接待对象</TableCell>
-            <TableCell sx={{ minWidth: 110 }}>报销部门</TableCell>
-            <TableCell sx={{ minWidth: 100 }}>经手人</TableCell>
-            <TableCell sx={{ minWidth: 110 }}>接待类型</TableCell>
-            <TableCell sx={{ minWidth: 100 }}>地点</TableCell>
-            <TableCell align="right" sx={{ minWidth: 110 }}>
-              发票金额（元）
-            </TableCell>
-            <TableCell align="right" sx={{ minWidth: 110 }}>
-              总接待金额（含酒水）
-            </TableCell>
-            <TableCell sx={{ minWidth: 200 }}>发票号</TableCell>
-            <TableCell sx={{ minWidth: 120 }}>发票日期</TableCell>
-            <TableCell sx={{ minWidth: 120 }}>部门负责人审批日期</TableCell>
             <TableCell sx={{ minWidth: 120 }}>
-              党总支书记（分管领导）审批日期
+              {fieldLabels.receptionDate}
             </TableCell>
-            <TableCell align="right" sx={{ minWidth: 100 }}>
-              来访人数
+            <TableCell sx={{ minWidth: 150 }}>
+              {fieldLabels.counterparty}
             </TableCell>
-            <TableCell align="right" sx={{ minWidth: 100 }}>
-              我方人数
+            <TableCell sx={{ minWidth: 110 }}>
+              {fieldLabels.department}
             </TableCell>
-            <TableCell align="right" sx={{ minWidth: 100 }}>
-              合计人数
+            <TableCell sx={{ minWidth: 100 }}>
+              {fieldLabels.handlerName}
+            </TableCell>
+            <TableCell sx={{ minWidth: 110 }}>
+              {fieldLabels.hospitalityType}
+            </TableCell>
+            <TableCell sx={{ minWidth: 100 }}>{fieldLabels.location}</TableCell>
+            <TableCell sx={{ minWidth: 100 }}>{fieldLabels.items}</TableCell>
+            <TableCell align="right" sx={{ minWidth: 110 }}>
+              {fieldLabels.invoiceAmount}
             </TableCell>
             <TableCell align="right" sx={{ minWidth: 110 }}>
-              人均金额
+              {fieldLabels.totalAmount}
             </TableCell>
-            <TableCell sx={{ minWidth: 120 }}>我方主持招待人员职务</TableCell>
-            <TableCell sx={{ minWidth: 120 }}>对方主持招待人员职务</TableCell>
+            <TableCell sx={{ minWidth: 200 }}>
+              {fieldLabels.invoiceNumberString}
+            </TableCell>
+            <TableCell sx={{ minWidth: 120 }}>
+              {fieldLabels.invoiceDate}
+            </TableCell>
+            <TableCell sx={{ minWidth: 120 }}>
+              {fieldLabels.deptHeadApprovalDate}
+            </TableCell>
+            <TableCell sx={{ minWidth: 120 }}>
+              {fieldLabels.partySecretaryApprovalDate}
+            </TableCell>
+            <TableCell align="right" sx={{ minWidth: 100 }}>
+              {fieldLabels.theirCount}
+            </TableCell>
+            <TableCell align="right" sx={{ minWidth: 100 }}>
+              {fieldLabels.ourCount}
+            </TableCell>
+            <TableCell align="right" sx={{ minWidth: 100 }}>
+              {fieldLabels.totalCount}
+            </TableCell>
+            <TableCell align="right" sx={{ minWidth: 110 }}>
+              {fieldLabels.perCapitaAmount}
+            </TableCell>
+            <TableCell sx={{ minWidth: 120 }}>
+              {fieldLabels.ourHostPosition}
+            </TableCell>
+            <TableCell sx={{ minWidth: 120 }}>
+              {fieldLabels.theirHostPosition}
+            </TableCell>
           </TableRow>
         </TableHead>
 
@@ -247,6 +272,9 @@ export default function HospitalityRecordsTable({
                     <TableCell>{record.handlerName}</TableCell>
                     <TableCell>{record.hospitalityTypeName}</TableCell>
                     <TableCell>{record.location}</TableCell>
+                    <TableCell>
+                      <ItemsPopperCell items={record.items} />
+                    </TableCell>
                     <TableCell align="right">
                       {formatAmount(record.invoiceAmount)}
                     </TableCell>

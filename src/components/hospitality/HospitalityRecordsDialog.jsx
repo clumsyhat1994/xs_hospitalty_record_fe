@@ -14,7 +14,7 @@ import RHFSelect from "../form/RHFGridSelect";
 import RHFCalculatedGridTextField from "../form/RHFCalculatedGridTextField";
 
 import HospitalityItemsFieldArray from "./HospitalityItemsFieldArray";
-import fieldLabels from "../../constants/fieldLables";
+import fieldLabels from "../../constants/recordFieldLabels";
 import hospitalityApi from "../../api/hospitalityApi";
 import { validationMessages } from "../../constants/validationMessages";
 import { BEErrorFieldToFEFormFieldMap } from "../../constants/BEErrorFieldToFEFormFieldMap";
@@ -27,6 +27,7 @@ import {
   isAdmin as isAdminFn,
 } from "../../auth/authService";
 import masterDataApi from "../../api/masterDataApi";
+//import masterDataFetchers from "../../api/masterDataFetchers";
 
 export default function HospitalityRecordDialog({
   open,
@@ -39,27 +40,43 @@ export default function HospitalityRecordDialog({
     defaultValues: initialValues,
   });
 
-  const { control, handleSubmit, reset, setError, setValue, getFieldState } =
-    methods;
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setError,
+    setValue,
+    getFieldState,
+    formState: { isSubmitting },
+  } = methods;
   const [softConfirmDialogOpen, setSoftConfirmDialogOpen] = useState(false);
   const {
     departments,
+    setDepartments,
     hospitalityTypes,
-    positions,
+    setHospitalityTypes,
+    ourHostPositions,
+    setOurHostPositions,
+    theirHostPositions,
+    setTheirHostPositions,
     counterparties,
     setCounterparties,
   } = useMasterData();
+  // console.log(departments);
+  // console.log(hospitalityTypes);
+  // console.log(ourHostPositions);
+  // console.log(counterparties);
   const [softErrors, setSoftErrors] = useState([]);
-  const fetchCounterparties = useCallback(
-    (keyword) => masterDataApi.searchCounterParties(keyword),
-    []
-  );
+  // const fetchCounterparties = useCallback(
+  //   (keyword) => masterDataApi.searchCounterParties(keyword),
+  //   []
+  // );
   const user = getCurrentUserFromToken();
   const isAdmin = isAdminFn(user);
 
   useEffect(() => {
+    if (!open) return;
     reset(initialValues);
-
     if (!isAdmin) setValue("departmentCode", user.departmentCode);
   }, [initialValues, isAdmin, open, reset, setValue, user.departmentCode]);
 
@@ -72,8 +89,6 @@ export default function HospitalityRecordDialog({
   };
 
   const submit = async (data, confirm = false) => {
-    console.log("clicked submit");
-
     try {
       let res;
       if (isEditMode) {
@@ -91,9 +106,9 @@ export default function HospitalityRecordDialog({
         console.log(res.data);
       }
       setSoftConfirmDialogOpen(false);
-      onSave(res.data);
+      onSave();
     } catch (err) {
-      console.error(err);
+      //console.error(err);
 
       let errorData = err.response?.data;
 
@@ -143,7 +158,6 @@ export default function HospitalityRecordDialog({
                 label={fieldLabels.receptionDate}
                 type="date"
                 sm={4}
-                rules={{ required: "Reception date is required" }}
               />
 
               <RHFComboBox
@@ -152,20 +166,28 @@ export default function HospitalityRecordDialog({
                 options={counterparties ?? []}
                 setOptions={setCounterparties}
                 label={fieldLabels.counterparty}
-                fetchOptions={fetchCounterparties}
+                fetchOptions={masterDataApi.searchCounterParties}
                 sm={8}
-                rules={{ required: "Counterparty is required" }}
               />
 
-              <RHFSelect
+              <RHFComboBox
+                name="departmentCode"
+                getOptionValue={(opt) => opt.code ?? opt}
+                options={departments ?? []}
+                setOptions={setDepartments}
+                label={fieldLabels.department}
+                fetchOptions={masterDataApi.searchDepartments}
+                isAdmin={isAdmin}
+              />
+
+              {/* <RHFSelect
                 name="departmentCode"
                 //control={control}
                 getOptionValue={(opt) => opt.code ?? opt}
                 label={fieldLabels.department}
                 options={departments ?? []}
                 isAdmin={isAdmin}
-                rules={{ required: "Department is required" }}
-              />
+              /> */}
 
               <RHFTextField
                 name="handlerName"
@@ -173,13 +195,20 @@ export default function HospitalityRecordDialog({
                 label={fieldLabels.handlerName}
               />
 
-              <RHFSelect
+              <RHFComboBox
+                name="hospitalityTypeId"
+                options={hospitalityTypes ?? []}
+                setOptions={setHospitalityTypes}
+                label={fieldLabels.hospitalityType}
+                fetchOptions={masterDataApi.searchHospitalityTypes}
+              />
+
+              {/* <RHFSelect
                 name="hospitalityTypeId"
                 //control={control}
                 label={fieldLabels.hospitalityType}
                 options={hospitalityTypes ?? []}
-                rules={{ required: "Hospitality type is required" }}
-              />
+              /> */}
 
               <RHFTextField
                 name="location"
@@ -255,21 +284,36 @@ export default function HospitalityRecordDialog({
                   return (totalAmount / totalCount).toFixed(2);
                 }}
               />
-              <RHFSelect
+
+              <RHFComboBox
+                name="ourHostPositionId"
+                options={ourHostPositions ?? []}
+                setOptions={setOurHostPositions}
+                label={fieldLabels.ourHostPosition}
+                fetchOptions={masterDataApi.searchPositions}
+              />
+
+              {/* <RHFSelect
                 name="ourHostPositionId"
                 //control={control}
                 label={fieldLabels.ourHostPosition}
                 options={positions ?? []}
-                rules={{ required: "我方主持招待人员职务 is required" }}
+              /> */}
+
+              <RHFComboBox
+                name="theirHostPositionId"
+                options={theirHostPositions ?? []}
+                setOptions={setTheirHostPositions}
+                label={fieldLabels.theirHostPosition}
+                fetchOptions={masterDataApi.searchPositions}
               />
 
-              <RHFSelect
+              {/* <RHFSelect
                 name="theirHostPositionId"
                 //control={control}
                 label={fieldLabels.theirHostPosition}
                 options={positions ?? []}
-                rules={{ required: "对方主持招待人员职务 is required" }}
-              />
+              /> */}
 
               <RHFTextField
                 name="deptHeadApprovalDate"
@@ -291,9 +335,10 @@ export default function HospitalityRecordDialog({
             <Button onClick={onClose}>取消</Button>
             <Button
               variant="contained"
+              disabled={isSubmitting}
               onClick={handleSubmit((data) => submit(data))}
             >
-              保存
+              {isSubmitting ? "保存中..." : "保存"}
             </Button>
           </DialogActions>
         </Dialog>
@@ -313,9 +358,10 @@ export default function HospitalityRecordDialog({
             </Button>
             <Button
               variant="contained"
+              disabled={isSubmitting}
               onClick={handleSubmit((data) => submit(data, true))}
             >
-              确认提交
+              {isSubmitting ? "提交中" : "确认提交"}
             </Button>
           </DialogActions>
         </Dialog>

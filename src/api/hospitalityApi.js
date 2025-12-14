@@ -7,8 +7,11 @@ function getHospitalityPath() {
 
 const hospitalityApi = {
   get: (id) => api.get(`${getHospitalityPath()}/${id}`),
-  filtered_list: (page = 0, size = 10, filters = {}) =>
-    api.get(getHospitalityPath(), { params: { page, size, ...filters } }),
+  filtered_list: (page = 0, size = 10, filters = {}, { signal } = {}) =>
+    api.get(getHospitalityPath(), {
+      params: { page, size, ...filters },
+      signal,
+    }),
   create: (payload, confirm = false) =>
     api.post(getHospitalityPath(), payload, {
       params: confirm ? { confirm: true } : {},

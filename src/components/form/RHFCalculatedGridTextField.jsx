@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useFormContext, useWatch } from "react-hook-form";
+import { useFormContext, useWatch, Controller } from "react-hook-form";
 import { Grid, TextField } from "@mui/material";
 
 export default function RHFCalculatedField({
@@ -11,7 +11,6 @@ export default function RHFCalculatedField({
 }) {
   const { control, setValue } = useFormContext();
   const allValues = useWatch({ control });
-
   const value = computeValue(allValues);
 
   useEffect(() => {
@@ -23,18 +22,26 @@ export default function RHFCalculatedField({
   }, [name, value, setValue]);
 
   return (
-    <Grid size={{ xs: xs, sm: sm }}>
-      <TextField
-        label={label}
-        size="small"
-        value={value ?? ""}
-        fullWidth
-        slotProps={{
-          input: {
-            readOnly: true,
-          },
-        }}
-      />
-    </Grid>
+    <Controller
+      name={name}
+      control={control}
+      render={({ fieldState: { error } }) => (
+        <Grid size={{ xs: xs, sm: sm }}>
+          <TextField
+            label={label}
+            size="small"
+            value={value ?? ""}
+            fullWidth
+            error={!!error}
+            helperText={error?.message}
+            slotProps={{
+              input: {
+                readOnly: true,
+              },
+            }}
+          />
+        </Grid>
+      )}
+    />
   );
 }

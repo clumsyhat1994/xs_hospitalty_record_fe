@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import {
   Box,
@@ -45,12 +45,12 @@ const emptyRecord = {
   invoiceDate: "2023-10-30",
   invoiceNumberString: "25444000000006604608",
   departmentCode: "SHENG",
-  hospitalityTypeId: "1",
+  hospitalityTypeId: 1,
   location: "餐厅",
   theirCount: "8",
   ourCount: "4",
-  ourHostPositionId: "1",
-  theirHostPositionId: "2",
+  ourHostPositionId: 1,
+  theirHostPositionId: 2,
   items: [
     { itemName: "白菜", unitPrice: 12, quantity: 3 },
     { itemName: "香菇", unitPrice: 120, quantity: 5 },
@@ -77,7 +77,9 @@ export default function HospitalityRecords() {
   });
   const [filters, setFilters] = useState(draftFilters);
   const [page, setPage] = useState(0);
-
+  const [totalElements, setTotalElements] = useState(0);
+  const [size, setSize] = useState(10);
+  const [loading, setLoading] = useState(false);
   const handleExport = async () => {
     try {
       const res = await hospitalityApi.export(filters);
@@ -160,17 +162,41 @@ export default function HospitalityRecords() {
     setDialogOpen(false);
   };
 
-  const handleDialogSave = async (values) => {
-    if (editingRecord) {
-      setRecords((prev) =>
-        prev.map((r) => (r.id === editingRecord.id ? { ...r, ...values } : r))
-      );
-    } else {
-      setRecords((prev) => [values, ...prev]);
-    }
+  const handleDialogSave = async () => {
+    // if (editingRecord) {
+    //   setRecords((prev) =>
+    //     prev.map((r) => (r.id === editingRecord.id ? { ...r, ...values } : r))
+    //   );
+    // } else {
+    //   setRecords((prev) => [values, ...prev]);
+    // }
+    load();
     setDialogOpen(false);
   };
 
+  const load = useCallback(
+    async (signal) => {
+      setLoading(true);
+      try {
+        const res = await hospitalityApi.filtered_list(page, size, filters, {
+          signal,
+        });
+
+        const data = res.data;
+        setRecords(data.content);
+        setTotalElements(data.totalElements);
+      } catch (e) {
+        // Ignore abort/cancel
+        if (e?.name !== "CanceledError" && e?.name !== "AbortError") {
+          console.error(e);
+        }
+      } finally {
+        // Avoid setting loading=false if we were aborted
+        if (!signal?.aborted) setLoading(false);
+      }
+    },
+    [page, size, filters, setRecords, setTotalElements]
+  );
   return (
     <Box>
       <MasterDataProvider>
@@ -196,6 +222,13 @@ export default function HospitalityRecords() {
             onToggleOne={handleToggleOne}
             onEditRow={handleEditRow}
             onDeleteRow={handleDeleteRow}
+            size={size}
+            setSize={setSize}
+            totalElements={totalElements}
+            setTotalElements={setTotalElements}
+            load={load}
+            loading={loading}
+            setLoading={setLoading}
           />
         </Paper>
         <HospitalityRecordDialog

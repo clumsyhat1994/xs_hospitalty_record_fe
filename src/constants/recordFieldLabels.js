@@ -1,6 +1,6 @@
 const fieldLabels = {
   actions: "操作",
-  receptionDate: "接待日期",
+  receptionDate: "招待日期",
   counterparty: "招待对象",
   department: "报销部门",
   handlerName: "经手人",
@@ -18,6 +18,11 @@ const fieldLabels = {
   theirHostPosition: "对方主持人员职务",
   deptHeadApprovalDate: "部门负责人审批日期",
   partySecretaryApprovalDate: " 党总支书记（分管领导）审批日期",
+  itemName: "物品名称",
+  unitPrice: "物品单价(元)",
+  quantity: "物品数量",
+  lineTotal: "物品总价(元)",
+  items: "购买物品明细",
 };
 
 export default fieldLabels;

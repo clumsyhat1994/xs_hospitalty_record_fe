@@ -5,11 +5,15 @@ const MasterDataContext = createContext({
   counterparties: [],
   setCounterparties: () => {},
   departments: [],
-  //setDepartments: () => {},
+  setDepartments: () => {},
   hospitalityTypes: [],
-  //setHospitalityTypes: () => {},
+  setHospitalityTypes: () => {},
   positions: [],
-  //setPositions: () => {},
+  setPositions: () => {},
+  ourHostPositions: [],
+  setOurHostPositions: () => {},
+  theirHostPositions: [],
+  setTheirHostPositions: () => {},
 });
 
 export function MasterDataProvider({ children }) {
@@ -17,19 +21,30 @@ export function MasterDataProvider({ children }) {
   const [departments, setDepartments] = useState([]);
   const [hospitalityTypes, setHospitalityTypes] = useState([]);
   const [positions, setPositions] = useState([]);
-
+  const [ourHostPositions, setOurHostPositions] = useState([]);
+  const [theirHostPositions, setTheirHostPositions] = useState([]);
   useEffect(() => {
     Promise.all([
-      masterDataApi.listDepartments(),
-      masterDataApi.listHospitalityTypes(),
-      masterDataApi.listCounterParties(),
-      masterDataApi.listPositions(),
+      masterDataApi.searchDepartments(),
+      //masterDataApi.listDepartments(),
+      masterDataApi.searchHospitalityTypes(),
+      //masterDataApi.listHospitalityTypes(),
+      masterDataApi.searchCounterParties(),
+      //masterDataApi.listCounterParties(),
+      masterDataApi.searchPositions(),
+      //masterDataApi.listPositions(),
     ])
       .then(([dep, types, cp, pos]) => {
-        setDepartments(dep.data?.content || []);
-        setHospitalityTypes(types.data?.content || []);
-        setCounterparties(cp.data?.content || []);
-        setPositions(pos.data?.content || []);
+        // setDepartments(dep.data?.content || []);
+        //setHospitalityTypes(types.data?.content || []);
+        // setCounterparties(cp.data?.content || []);
+        // setPositions(pos.data?.content || []);
+        setDepartments(dep.data || []);
+        setHospitalityTypes(types.data || []);
+        setCounterparties(cp.data || []);
+        setPositions(pos.data || []);
+        setOurHostPositions(pos.data || []);
+        setTheirHostPositions(pos.data || []);
       })
       .catch((err) => {
         console.error("Failed to load master data", err);
@@ -42,8 +57,15 @@ export function MasterDataProvider({ children }) {
         counterparties,
         setCounterparties,
         departments,
+        setDepartments,
         hospitalityTypes,
+        setHospitalityTypes,
         positions,
+        setPositions,
+        ourHostPositions,
+        setOurHostPositions,
+        theirHostPositions,
+        setTheirHostPositions,
       }}
     >
       {children}

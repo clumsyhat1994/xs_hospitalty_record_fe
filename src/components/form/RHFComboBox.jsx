@@ -12,6 +12,7 @@ export default function RHFComboBox({
   options,
   setOptions,
   fetchOptions,
+  isAdmin,
   xs = 12,
   sm = 6,
   rules = {},
@@ -19,18 +20,7 @@ export default function RHFComboBox({
 }) {
   const { control } = useFormContext();
   const { isEditMode } = useFormMode();
-  //const [keyword, setKeyword] = useState("");
-
-  // useEffect(() => {
-  //   const handle = setTimeout(() => {
-  //     fetchOptions(keyword).then((res) => {
-  //       setOptions(res.data);
-  //     });
-  //   }, 150);
-
-  //   return () => clearTimeout(handle);
-  // }, [keyword, fetchOptions, setOptions]);
-
+  //console.log(name);
   return (
     <Controller
       name={name}
@@ -51,39 +41,8 @@ export default function RHFComboBox({
             options={options}
             setOptions={setOptions}
             fetchOptions={fetchOptions}
+            isAdmin={isAdmin}
           />
-          // <Autocomplete
-          //   options={options ?? []}
-          //   filterOptions={(x) => x}
-          //   getOptionLabel={getOptionLabel}
-          //   isOptionEqualToValue={(opt, val) =>
-          //     getOptionValue(opt) === getOptionValue(val)
-          //   }
-          //   value={
-          //     options.find((o) => getOptionValue(o) === field.value) || null
-          //   }
-          //   onInputChange={(event, newInputValue) => {
-          //     setKeyword(newInputValue);
-          //   }}
-          //   onChange={(_, newVal) => {
-          //     field.onChange(newVal ? getOptionValue(newVal) : null);
-          //   }}
-          //   renderInput={(params) => (
-          //     <TextField
-          //       {...params}
-          //       size="small"
-          //       label={label}
-          //       error={!!error}
-          //       slotProps={{
-          //         inputLabel: {
-          //           shrink: true,
-          //         },
-          //       }}
-          //       helperText={error?.message}
-          //     />
-          //   )}
-          //   {...rest}
-          // />
         );
       }}
     />
