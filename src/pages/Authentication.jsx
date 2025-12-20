@@ -4,7 +4,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { getEndpoint } from "../config/runtimeConfig";
+//import { getEndpoint } from "../config/runtimeConfig";
 import {
   Box,
   Paper,
@@ -16,14 +16,15 @@ import {
   Alert,
   Stack,
 } from "@mui/material";
+import endpoints from "../constants/Endpoints";
 
 const AuthenticationPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from ?? "/";
   console.log(from);
-  const LOGIN_URL = getEndpoint("LOGIN");
-
+  //const LOGIN_URL = getEndpoint("LOGIN");
+  const LOGIN_URL = endpoints.LOGIN;
   const {
     register,
     handleSubmit,

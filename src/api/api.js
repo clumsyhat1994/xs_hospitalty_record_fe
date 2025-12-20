@@ -1,5 +1,6 @@
 import axios from "axios";
-import { getEndpoint } from "../config/runtimeConfig.js";
+import endpoints from "../constants/Endpoints";
+//import { getEndpoint } from "../config/runtimeConfig.js";
 //const API_BASE_URL = window.__APP_CONFIG__.BASE_URL;
 
 // const api = axios.create({
@@ -9,7 +10,7 @@ import { getEndpoint } from "../config/runtimeConfig.js";
 axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("authToken");
-    const isAuth = config.url?.includes(getEndpoint("LOGIN"));
+    const isAuth = config.url?.includes(endpoints.LOGIN);
     if (!isAuth && token) {
       config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
