@@ -6,11 +6,13 @@ import {
   DialogActions,
   Button,
   Grid,
-  TextField,
 } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import RHFTextField from "../form/RHFGridTextField";
+import RHFMultiAutocomplete from "../form/RHFMultiAutocomplete";
+import { useMasterData } from "../../context/MasterDataContext";
+import { FormModeProvider } from "../../context/FormModeContext";
 
 export default function MasterDataDialog({
   open,
@@ -18,16 +20,22 @@ export default function MasterDataDialog({
   onClose,
   onSave,
   textFields,
+  multiAutoCompleteFields,
 }) {
   const form = useForm({
     defaultValues: initialValues,
+    mode: "onSubmit",
+    reValidateMode: "onChange",
   });
+
   const {
     control,
     handleSubmit,
     reset,
     formState: { isSubmitting },
   } = form;
+
+  const isEditMode = initialValues?.id != null;
 
   useEffect(() => {
     if (open) {
@@ -40,37 +48,50 @@ export default function MasterDataDialog({
   };
 
   return (
-    <FormProvider {...form}>
-      <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-        <DialogTitle>
-          {initialValues?.id == null ? "新建往来单位" : "编辑往来单位"}
-        </DialogTitle>
-        <DialogContent sx={{ mt: 1 }}>
-          <Grid container spacing={2} pt={1}>
-            {textFields.map((field) => (
-              <RHFTextField
-                key={field.fieldName}
-                name={field.fieldName}
-                control={control}
-                label={field.label}
-                sm={6}
-              />
-            ))}
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose} disabled={isSubmitting}>
-            取消
-          </Button>
-          <Button
-            onClick={handleSubmit(onSubmit)}
-            variant="contained"
-            disabled={isSubmitting}
-          >
-            保存
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </FormProvider>
+    <FormModeProvider isEditMode={isEditMode}>
+      <FormProvider {...form}>
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+          <DialogTitle>
+            {isEditMode ? "编辑往来单位" : "新建往来单位"}
+          </DialogTitle>
+          <DialogContent sx={{ mt: 1 }}>
+            <Grid container spacing={2} pt={1}>
+              {textFields.map((field) => (
+                <RHFTextField
+                  key={field.fieldName}
+                  name={field.fieldName}
+                  control={control}
+                  label={field.label}
+                  sm={6}
+                />
+              ))}
+              {multiAutoCompleteFields.map((field) => (
+                <Grid key={field.fieldName} size={{ sm: field.sm ?? 6 }}>
+                  <RHFMultiAutocomplete
+                    name={field.fieldName}
+                    control={control}
+                    label={field.label}
+                    options={field.options}
+                    sm={6}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={onClose} disabled={isSubmitting}>
+              取消
+            </Button>
+            <Button
+              onClick={handleSubmit(onSubmit)}
+              variant="contained"
+              disabled={isSubmitting}
+            >
+              保存
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </FormProvider>
+    </FormModeProvider>
   );
 }

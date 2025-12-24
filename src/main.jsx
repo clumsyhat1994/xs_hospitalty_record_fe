@@ -6,6 +6,7 @@ import App from "./App.jsx";
 //import { getBaseUrl } from "./config/runtimeConfig.js";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { zhCN } from "@mui/material/locale";
+import { AuthProvider } from "./context/AuthProvider.jsx";
 
 const theme = createTheme(
   {
@@ -46,7 +47,9 @@ const theme = createTheme(
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </ThemeProvider>
   </StrictMode>
 );

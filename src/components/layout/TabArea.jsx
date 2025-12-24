@@ -2,6 +2,7 @@ import { Tabs, Tab, Box } from "@mui/material";
 
 import { Outlet, useNavigate } from "react-router-dom";
 import moduleRoutes from "../../constants/moduleRoutes";
+import { MasterDataProvider } from "../../context/MasterDataContext";
 
 export default function TabArea({ tabs, activeTab, setActiveTab }) {
   const navigate = useNavigate();
@@ -19,7 +20,9 @@ export default function TabArea({ tabs, activeTab, setActiveTab }) {
           <Tab key={tab.key} label={tab.label} value={tab.key} />
         ))}
       </Tabs>
-      <Outlet />
+      <MasterDataProvider>
+        <Outlet />
+      </MasterDataProvider>
       {/* <Box sx={{ mt: 2 }}>{activeTab && componentMap[activeTab]}</Box> */}
     </Box>
   );

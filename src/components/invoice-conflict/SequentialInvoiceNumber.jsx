@@ -41,7 +41,7 @@ export default function SequentialInvoiceNumber() {
       try {
         const res = await invoiceRunsApi.list(p, s);
         if (reqId !== reqIdRef.current) return; // stale response
-        setRows(res.data.content ?? []);
+        //setRows(res.data.content ?? []);
         setTotalElements(res.data.totalElements ?? 0);
       } catch (e) {
         console.error(e);
@@ -115,7 +115,7 @@ export default function SequentialInvoiceNumber() {
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell></TableCell>
+            <TableCell>操作</TableCell>
             <TableCell>发票号</TableCell>
             <TableCell>招待日期</TableCell>
           </TableRow>
@@ -138,6 +138,13 @@ export default function SequentialInvoiceNumber() {
               <TableCell>{row.receptionDates.join(", ")}</TableCell>
             </TableRow>
           ))}
+          {rows.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={3} align="left">
+                没有任何连号发票，奖励一碗丝瓜汤吧~
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
       <TablePagination

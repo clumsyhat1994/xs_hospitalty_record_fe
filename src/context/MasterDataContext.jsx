@@ -23,6 +23,7 @@ export function MasterDataProvider({ children }) {
   const [positions, setPositions] = useState([]);
   const [ourHostPositions, setOurHostPositions] = useState([]);
   const [theirHostPositions, setTheirHostPositions] = useState([]);
+  const [counterpartyTypes, setCounterpartyTypes] = useState([]);
   useEffect(() => {
     Promise.all([
       masterDataApi.searchDepartments(),
@@ -33,8 +34,9 @@ export function MasterDataProvider({ children }) {
       //masterDataApi.listCounterParties(),
       masterDataApi.searchPositions(),
       //masterDataApi.listPositions(),
+      masterDataApi.searchCounterpartyTypes(),
     ])
-      .then(([dep, types, cp, pos]) => {
+      .then(([dep, types, cp, pos, cpt]) => {
         // setDepartments(dep.data?.content || []);
         //setHospitalityTypes(types.data?.content || []);
         // setCounterparties(cp.data?.content || []);
@@ -45,6 +47,8 @@ export function MasterDataProvider({ children }) {
         setPositions(pos.data || []);
         setOurHostPositions(pos.data || []);
         setTheirHostPositions(pos.data || []);
+        console.log("cpt:", cpt);
+        setCounterpartyTypes(cpt.data || []);
       })
       .catch((err) => {
         console.error("Failed to load master data", err);
@@ -66,6 +70,8 @@ export function MasterDataProvider({ children }) {
         setOurHostPositions,
         theirHostPositions,
         setTheirHostPositions,
+        counterpartyTypes,
+        setCounterpartyTypes,
       }}
     >
       {children}

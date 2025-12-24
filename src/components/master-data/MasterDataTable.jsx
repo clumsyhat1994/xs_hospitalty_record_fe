@@ -25,7 +25,6 @@ export default function MasterDataTable({
   columns,
   getRowId = (row) => row.id,
   onEdit,
-  onDeleteOne,
   page,
   size,
   total,
@@ -104,13 +103,13 @@ export default function MasterDataTable({
                       <IconButton size="small" onClick={() => onEdit(row)}>
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton
+                      {/* <IconButton
                         size="small"
                         color="error"
                         onClick={() => onDeleteOne(row)}
                       >
                         <DeleteIcon fontSize="small" />
-                      </IconButton>
+                      </IconButton> */}
                     </TableCell>
                   </TableRow>
                 );

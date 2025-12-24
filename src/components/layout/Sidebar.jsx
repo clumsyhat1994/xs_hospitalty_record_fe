@@ -9,15 +9,21 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { useState } from "react";
 import menuLables from "../../constants/moduleLables";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthProvider";
+import { GuardedListItemButton } from "../common/GuardedListItemButton";
 
 export default function Sidebar({ onOpenModule }) {
   const [masterOpen, setMasterOpen] = useState(true);
+  const { logout, user } = useAuth();
+  const isAdmin = user?.isAdmin ?? false;
+  console.log("isAdmin?", isAdmin);
   const toggleMaster = () => {
     setMasterOpen((prev) => !prev);
   };
   const navigate = useNavigate();
   const handleLogout = async () => {
-    localStorage.removeItem("token");
+    //localStorage.removeItem("token");
+    logout();
     navigate("/login");
   };
 
@@ -44,7 +50,8 @@ export default function Sidebar({ onOpenModule }) {
             <ListItemText primary={menuLables.HOSPITALITY_RECORDS} />
           </ListItemButton>
 
-          <ListItemButton
+          <GuardedListItemButton
+            allowed={isAdmin}
             onClick={() =>
               onOpenModule({
                 key: "INVOICE_CONFLICT",
@@ -53,8 +60,7 @@ export default function Sidebar({ onOpenModule }) {
             }
           >
             <ListItemText primary={menuLables.INVOICE_CONFLICT} />
-          </ListItemButton>
-
+          </GuardedListItemButton>
           <ListItemButton onClick={toggleMaster}>
             <ListItemText primary={menuLables.MASTER_DATA} />
             {masterOpen ? <ExpandLess /> : <ExpandMore />}
@@ -72,8 +78,8 @@ export default function Sidebar({ onOpenModule }) {
               >
                 <ListItemText primary={menuLables.DEPARTMENT} sx={{ pl: 2 }} />
               </ListItemButton> */}
-
-              <ListItemButton
+              <GuardedListItemButton
+                allowed={isAdmin}
                 onClick={() =>
                   onOpenModule({
                     key: "COUNTERPARTY",
@@ -85,7 +91,7 @@ export default function Sidebar({ onOpenModule }) {
                   primary={menuLables.COUNTERPARTY}
                   sx={{ pl: 2 }}
                 />
-              </ListItemButton>
+              </GuardedListItemButton>
 
               {/* <ListItemButton
                 onClick={() =>

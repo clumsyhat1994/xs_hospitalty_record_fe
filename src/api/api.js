@@ -23,7 +23,9 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    const url = error.config?.url ?? "";
+    const isLogin = url.includes("/login");
+    if (!isLogin && error.response && error.response.status === 401) {
       console.warn("401 Unauthorized");
       window.location.href = "/login";
     } else if (

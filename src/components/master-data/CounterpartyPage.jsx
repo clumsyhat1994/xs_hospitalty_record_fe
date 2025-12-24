@@ -5,6 +5,7 @@ import MasterDataToolbar from ".//MasterDataToolbar";
 import MasterDataTable from "./MasterDataTable";
 import MasterDataDialog from "./MasterDataDialog";
 import masterDataApi from "../../api/masterDataApi";
+import { useMasterData } from "../../context/MasterDataContext";
 
 const emptyRow = {
   code: "",
@@ -23,6 +24,7 @@ export default function CounterpartyPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRow, setEditingRow] = useState(null);
   const debounceRef = useRef(null);
+  const { counterpartyTypes } = useMasterData();
   const loadData = useCallback(
     async (keyword = "") => {
       setLoading(true);
@@ -30,7 +32,7 @@ export default function CounterpartyPage() {
         const res = await masterDataApi.listCounterParties(page, size, keyword);
 
         const data = res.data;
-
+        console.log(data.content);
         setRows(data.content || data); // if backend returns plain list, this still works
         setTotal(data.totalElements ?? 0);
       } catch (err) {
@@ -60,7 +62,10 @@ export default function CounterpartyPage() {
   };
 
   const handleEdit = (row) => {
-    setEditingRow(row);
+    setEditingRow({
+      ...row,
+      counterpartyTypeIds: row.counterpartyTypes.map((type) => type.id),
+    });
     setDialogOpen(true);
   };
 
@@ -140,7 +145,15 @@ export default function CounterpartyPage() {
   };
 
   const columns = [
-    { fieldName: "name", headerName: "公司名称", width: 240 },
+    { fieldName: "name", headerName: "公司名称", width: 300 },
+    {
+      fieldName: "counterpartyTypes",
+      width: 250,
+      headerName: "归属地",
+      renderCell: (value) => {
+        return value.map((o) => o.name).join("、");
+      },
+    },
     {
       fieldName: "active",
       headerName: "状态",
@@ -154,7 +167,14 @@ export default function CounterpartyPage() {
     },
   ];
   const dialogTextFields = [{ fieldName: "name", label: "公司名称" }];
-
+  const dialogMuiltiAutoCompleteFields = [
+    {
+      fieldName: "counterpartyTypeIds",
+      label: "归属地",
+      options: counterpartyTypes,
+      sm: 6,
+    },
+  ];
   return (
     <Box>
       <Paper elevation={2}>
@@ -200,6 +220,7 @@ export default function CounterpartyPage() {
           }}
           onSave={handleSave}
           textFields={dialogTextFields}
+          multiAutoCompleteFields={dialogMuiltiAutoCompleteFields}
         />
       </Paper>
     </Box>

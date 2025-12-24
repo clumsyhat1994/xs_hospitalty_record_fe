@@ -46,6 +46,14 @@ const masterDataApi = {
         includeId: includeId === "" ? undefined : includeId,
       },
     }),
+
+  searchCounterpartyTypes: (keyword = "", includeId) =>
+    api.get("/api/counterparty-type/search", {
+      params: {
+        q: keyword,
+        includeId: includeId === "" ? undefined : includeId,
+      },
+    }),
 };
 
 export default masterDataApi;

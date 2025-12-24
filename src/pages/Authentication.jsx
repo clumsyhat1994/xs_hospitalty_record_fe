@@ -17,6 +17,7 @@ import {
   Stack,
 } from "@mui/material";
 import endpoints from "../constants/Endpoints";
+import { useAuth } from "../context/AuthProvider";
 
 const AuthenticationPage = () => {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const AuthenticationPage = () => {
 
   const [loginError, setLoginError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const { login } = useAuth();
 
   const mapFormFieldsToAPI = (data, mapping) => {
     const transformedData = {};
@@ -57,16 +59,16 @@ const AuthenticationPage = () => {
       if (response.status === 200) {
         const token = response.data.accessToken;
         if (token) localStorage.setItem("authToken", token);
-
+        login(token);
         setLoginError("");
         clearErrors();
         navigate(from, { replace: true });
       } else {
         setLoginError(response.data.msg);
       }
-      // eslint-disable-next-line no-unused-vars
     } catch (err) {
-      setLoginError("未知错误，请联系系统管理员！");
+      if (err.response?.status === 401) setLoginError("用户名或密码错误！");
+      else setLoginError("未知错误，请联系系统管理员！");
     }
   };
 

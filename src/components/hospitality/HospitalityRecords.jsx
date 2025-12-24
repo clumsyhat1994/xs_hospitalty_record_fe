@@ -199,46 +199,44 @@ export default function HospitalityRecords() {
   );
   return (
     <Box>
-      <MasterDataProvider>
-        <Paper elevation={2}>
-          <HospitalityRecordsToolBar
-            selectedCount={selectedIds.length}
-            draftFilters={draftFilters}
-            onDraftFilterChange={handleDraftFilterChange}
-            onSearch={handleSearch}
-            onClear={handleClear}
-            onCreate={handleCreateClick}
-            onBatchDelete={handleBatchDeleteClick}
-            onExport={handleExport}
-          />
-          <HospitalityRecordsTable
-            filters={filters}
-            page={page}
-            setPage={setPage}
-            records={records}
-            setRecords={setRecords}
-            selectedIds={selectedIds}
-            onToggleAll={handleToggleAll}
-            onToggleOne={handleToggleOne}
-            onEditRow={handleEditRow}
-            onDeleteRow={handleDeleteRow}
-            size={size}
-            setSize={setSize}
-            totalElements={totalElements}
-            setTotalElements={setTotalElements}
-            load={load}
-            loading={loading}
-            setLoading={setLoading}
-          />
-        </Paper>
-        <HospitalityRecordDialog
-          open={dialogOpen}
-          initialValues={editingRecord || emptyRecord}
-          isEditMode={!!editingRecord}
-          onClose={handleDialogClose}
-          onSave={handleDialogSave}
+      <Paper elevation={2}>
+        <HospitalityRecordsToolBar
+          selectedCount={selectedIds.length}
+          draftFilters={draftFilters}
+          onDraftFilterChange={handleDraftFilterChange}
+          onSearch={handleSearch}
+          onClear={handleClear}
+          onCreate={handleCreateClick}
+          onBatchDelete={handleBatchDeleteClick}
+          onExport={handleExport}
         />
-      </MasterDataProvider>
+        <HospitalityRecordsTable
+          filters={filters}
+          page={page}
+          setPage={setPage}
+          records={records}
+          setRecords={setRecords}
+          selectedIds={selectedIds}
+          onToggleAll={handleToggleAll}
+          onToggleOne={handleToggleOne}
+          onEditRow={handleEditRow}
+          onDeleteRow={handleDeleteRow}
+          size={size}
+          setSize={setSize}
+          totalElements={totalElements}
+          setTotalElements={setTotalElements}
+          load={load}
+          loading={loading}
+          setLoading={setLoading}
+        />
+      </Paper>
+      <HospitalityRecordDialog
+        open={dialogOpen}
+        initialValues={editingRecord || emptyRecord}
+        isEditMode={!!editingRecord}
+        onClose={handleDialogClose}
+        onSave={handleDialogSave}
+      />
     </Box>
   );
 }
