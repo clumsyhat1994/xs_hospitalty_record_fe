@@ -164,7 +164,8 @@ export default function HospitalityRecordsToolbar({
             导出 Excel
           </Button>
         </Tooltip>
-        {/* <Button
+        {/* DO NOT DELETE!!!
+        <Button
           variant="outlined"
           color="error"
           startIcon={<DeleteIcon />}

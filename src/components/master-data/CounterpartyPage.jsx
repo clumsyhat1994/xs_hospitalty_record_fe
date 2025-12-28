@@ -6,6 +6,7 @@ import MasterDataTable from "./MasterDataTable";
 import MasterDataDialog from "./MasterDataDialog";
 import masterDataApi from "../../api/masterDataApi";
 import { useMasterData } from "../../context/MasterDataContext";
+import { useForm } from "react-hook-form";
 
 const emptyRow = {
   code: "",
@@ -25,6 +26,7 @@ export default function CounterpartyPage() {
   const [editingRow, setEditingRow] = useState(null);
   const debounceRef = useRef(null);
   const { counterpartyTypes } = useMasterData();
+
   const loadData = useCallback(
     async (keyword = "") => {
       setLoading(true);
@@ -32,7 +34,7 @@ export default function CounterpartyPage() {
         const res = await masterDataApi.listCounterParties(page, size, keyword);
 
         const data = res.data;
-        console.log(data.content);
+        //console.log(data.content);
         setRows(data.content || data); // if backend returns plain list, this still works
         setTotal(data.totalElements ?? 0);
       } catch (err) {
@@ -79,24 +81,24 @@ export default function CounterpartyPage() {
     }
   };
 
-  const handleSave = async (data) => {
-    try {
-      if (editingRow?.id == null) {
-        await masterDataApi.createCounterParty(data);
-      } else {
-        await masterDataApi.updateCounterParty(editingRow.id, data);
-      }
-      setDialogOpen(false);
-      setEditingRow(null);
-      if (editingRow?.id == null) {
-        await loadData();
-      } else {
-        await loadData(keyword);
-      }
-    } catch (err) {
-      console.error("Save failed", err);
-    }
-  };
+  // const handleSave = async (data) => {
+  //   try {
+  //     if (editingRow?.id == null) {
+  //       await masterDataApi.createCounterParty(data);
+  //     } else {
+  //       await masterDataApi.updateCounterParty(editingRow.id, data);
+  //     }
+  //     setDialogOpen(false);
+  //     setEditingRow(null);
+  //     if (editingRow?.id == null) {
+  //       await loadData();
+  //     } else {
+  //       await loadData(keyword);
+  //     }
+  //   } catch (err) {
+  //     console.error("Save failed", err);
+  //   }
+  // };
 
   const handleSearchChange = (value) => {
     if (debounceRef.current) {
@@ -218,7 +220,16 @@ export default function CounterpartyPage() {
             setDialogOpen(false);
             setEditingRow(null);
           }}
-          onSave={handleSave}
+          onSaveSuccess={() => {
+            setKeyword("");
+            loadData(keyword);
+          }}
+          //onSave={handleSave}
+          save={(data) =>
+            editingRow?.id == null
+              ? masterDataApi.createCounterParty(data)
+              : masterDataApi.updateCounterParty(editingRow.id, data)
+          }
           textFields={dialogTextFields}
           multiAutoCompleteFields={dialogMuiltiAutoCompleteFields}
         />

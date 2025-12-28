@@ -27,6 +27,7 @@ import {
   isAdmin as isAdminFn,
 } from "../../auth/authService";
 import masterDataApi from "../../api/masterDataApi";
+import { useAuth } from "../../context/AuthProvider";
 //import masterDataFetchers from "../../api/masterDataFetchers";
 
 export default function HospitalityRecordDialog({
@@ -71,14 +72,15 @@ export default function HospitalityRecordDialog({
   //   (keyword) => masterDataApi.searchCounterParties(keyword),
   //   []
   // );
-  const user = getCurrentUserFromToken();
-  const isAdmin = isAdminFn(user);
+  //const user = getCurrentUserFromToken();
+  //const isAdmin = isAdminFn(user);
+  const { departmentCode, isAdmin, user } = useAuth();
 
   useEffect(() => {
     if (!open) return;
     reset(initialValues);
-    if (!isAdmin) setValue("departmentCode", user.departmentCode);
-  }, [initialValues, isAdmin, open, reset, setValue, user.departmentCode]);
+    if (!isAdmin) setValue("departmentCode", departmentCode);
+  }, [initialValues, isAdmin, open, reset, setValue, departmentCode]);
 
   const cleanData = (data) => {
     return Object.fromEntries(
@@ -294,13 +296,13 @@ export default function HospitalityRecordDialog({
                 options={positions ?? []}
               /> */}
 
-              <RHFComboBox
+              {/* <RHFComboBox
                 name="theirHostPositionId"
                 options={theirHostPositions ?? []}
                 setOptions={setTheirHostPositions}
                 label={fieldLabels.theirHostPosition}
                 fetchOptions={masterDataApi.searchPositions}
-              />
+              /> */}
 
               {/* <RHFSelect
                 name="theirHostPositionId"
@@ -308,6 +310,11 @@ export default function HospitalityRecordDialog({
                 label={fieldLabels.theirHostPosition}
                 options={positions ?? []}
               /> */}
+
+              <RHFTextField
+                name="theirHostPosition"
+                label={fieldLabels.theirHostPosition}
+              />
 
               <RHFTextField
                 name="deptHeadApprovalDate"

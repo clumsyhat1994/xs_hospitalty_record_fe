@@ -7,18 +7,19 @@ import {
   Button,
   Grid,
 } from "@mui/material";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import RHFTextField from "../form/RHFGridTextField";
 import RHFMultiAutocomplete from "../form/RHFMultiAutocomplete";
-import { useMasterData } from "../../context/MasterDataContext";
+
 import { FormModeProvider } from "../../context/FormModeContext";
 
 export default function MasterDataDialog({
   open,
   initialValues,
   onClose,
-  onSave,
+  save,
+  onSaveSuccess,
   textFields,
   multiAutoCompleteFields,
 }) {
@@ -32,6 +33,7 @@ export default function MasterDataDialog({
     control,
     handleSubmit,
     reset,
+    setError,
     formState: { isSubmitting },
   } = form;
 
@@ -44,7 +46,16 @@ export default function MasterDataDialog({
   }, [open, initialValues, reset]);
 
   const onSubmit = async (data) => {
-    await onSave(data);
+    try {
+      await save(data);
+      onSaveSuccess();
+      onClose;
+    } catch (err) {
+      if (err.response?.status === 409) {
+        const data = err.response.data;
+        setError(data?.field, { type: "server", message: data?.detail });
+      }
+    }
   };
 
   return (

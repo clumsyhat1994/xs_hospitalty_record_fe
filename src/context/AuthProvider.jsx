@@ -41,7 +41,16 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        loading,
+        isAdmin: user?.isAdmin ?? false,
+        departmentCode: user?.departmentCode ?? "",
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -50,7 +59,6 @@ export function AuthProvider({ children }) {
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthContext);
-
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
 }
@@ -59,15 +67,18 @@ function buildUserFromToken(token) {
   const payload = jwtDecode(token);
 
   const expired = payload.exp && Date.now() >= payload.exp * 1000;
-  if (expired) return null;
+  if (expired) {
+    localStorage.removeItem("authToken");
+    return null;
+  }
 
   const roles = payload.authorities ?? payload.roles ?? [];
 
   const isAdmin = roles.includes("ROLE_ADMIN") || roles.includes("ADMIN");
-
+  console.log(payload);
   return {
     username: payload.sub,
-    departmentCode: payload.departmentCode,
+    departmentCode: payload.department,
     roles,
     isAdmin,
     exp: payload.exp,
