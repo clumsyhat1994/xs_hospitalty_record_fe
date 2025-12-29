@@ -32,7 +32,7 @@ export default function Sidebar({ onOpenModule }) {
       sx={{
         width: 200,
         borderRight: "1px solid #ddd",
-        height: "100vh",
+
         display: "flex",
         flexDirection: "column",
       }}
@@ -61,10 +61,10 @@ export default function Sidebar({ onOpenModule }) {
           >
             <ListItemText primary={menuLables.INVOICE_CONFLICT} />
           </GuardedListItemButton>
-          <ListItemButton onClick={toggleMaster}>
+          <GuardedListItemButton onClick={toggleMaster} allowed={isAdmin}>
             <ListItemText primary={menuLables.MASTER_DATA} />
             {masterOpen ? <ExpandLess /> : <ExpandMore />}
-          </ListItemButton>
+          </GuardedListItemButton>
 
           <Collapse in={masterOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>

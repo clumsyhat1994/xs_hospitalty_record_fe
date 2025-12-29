@@ -6,6 +6,7 @@ import { Outlet, useLocation, Link, useNavigate } from "react-router-dom";
 import menuLables from "../constants/moduleLables";
 import moduleRoutes from "../constants/moduleRoutes";
 import routeToModule from "../constants/routeToModule";
+import AppFooter from "../components/layout/AppFooter";
 
 export default function MainLayout() {
   const location = useLocation();
@@ -51,7 +52,7 @@ export default function MainLayout() {
   }, [location.pathname]);
 
   return (
-    <Box sx={{ display: "flex", height: "100vh" }}>
+    <Box sx={{ display: "flex", flex: 1 }}>
       <Sidebar onOpenModule={handleOpenModule} />
       <Box sx={{ flexGrow: 1, p: 2, width: "80%" }}>
         <TabArea

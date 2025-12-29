@@ -3,7 +3,7 @@ import { useState } from "react";
 
 export function GuardedListItemButton({
   allowed,
-  tooltip = "办公室不给你看这个模块 : (",
+  tooltip = "办公室说不给你看这个模块 : (",
   onClick,
   children,
   ...props

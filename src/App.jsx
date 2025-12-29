@@ -7,6 +7,7 @@ import HospitalityRecords from "./components/hospitality/HospitalityRecords";
 import SequentialInvoiceNumber from "./components/invoice-conflict/SequentialInvoiceNumber";
 import CounterpartyPage from "./components/master-data/CounterpartyPage";
 import moduleRoutes from "./constants/moduleRoutes";
+import AppShell from "./AppShell";
 //import Department from "./components/master_data/Department";
 
 function App() {
@@ -14,29 +15,31 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<AuthenticationPage />} />
-        <Route
-          path="/"
-          element={
-            <RequireAuth>
-              <MainPage />
-            </RequireAuth>
-          }
-        >
-          <Route index element={<Navigate to="records" replace />} />
+        <Route element={<AppShell />}>
+          <Route
+            path="/"
+            element={
+              <RequireAuth>
+                <MainPage />
+              </RequireAuth>
+            }
+          >
+            <Route index element={<Navigate to="records" replace />} />
 
-          <Route
-            path={moduleRoutes.HOSPITALITY_RECORDS}
-            element={<HospitalityRecords />}
-          />
-          <Route
-            path={moduleRoutes.INVOICE_CONFLICT}
-            element={<SequentialInvoiceNumber />}
-          />
-          <Route
-            path={moduleRoutes.COUNTERPARTY}
-            element={<CounterpartyPage />}
-          />
-          {/* <Route path={moduleRoutes.DEPARTMENT} element={<Department />} /> */}
+            <Route
+              path={moduleRoutes.HOSPITALITY_RECORDS}
+              element={<HospitalityRecords />}
+            />
+            <Route
+              path={moduleRoutes.INVOICE_CONFLICT}
+              element={<SequentialInvoiceNumber />}
+            />
+            <Route
+              path={moduleRoutes.COUNTERPARTY}
+              element={<CounterpartyPage />}
+            />
+            {/* <Route path={moduleRoutes.DEPARTMENT} element={<Department />} /> */}
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>

@@ -3,11 +3,12 @@ import { Tabs, Tab, Box } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
 import moduleRoutes from "../../constants/moduleRoutes";
 import { MasterDataProvider } from "../../context/MasterDataContext";
+import AppFooter from "./AppFooter";
 
 export default function TabArea({ tabs, activeTab, setActiveTab }) {
   const navigate = useNavigate();
   return (
-    <Box>
+    <>
       <Tabs
         value={activeTab} //which tab is currently selected
         onChange={(e, v) => {
@@ -23,7 +24,8 @@ export default function TabArea({ tabs, activeTab, setActiveTab }) {
       <MasterDataProvider>
         <Outlet />
       </MasterDataProvider>
+
       {/* <Box sx={{ mt: 2 }}>{activeTab && componentMap[activeTab]}</Box> */}
-    </Box>
+    </>
   );
 }

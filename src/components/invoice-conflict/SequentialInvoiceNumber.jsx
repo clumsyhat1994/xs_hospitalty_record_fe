@@ -140,10 +140,10 @@ export default function SequentialInvoiceNumber() {
               </TableRow>
             );
           })}
-          {rows.length === 0 && (
+          {rows.length === 0 && loading === false && (
             <TableRow>
               <TableCell colSpan={3} align="left">
-                没有任何连号发票，奖励一碗丝瓜汤吧~
+                找不到任何连号发票，也许它们只是都市传说？！
               </TableCell>
             </TableRow>
           )}
