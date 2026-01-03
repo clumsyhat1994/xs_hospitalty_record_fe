@@ -45,7 +45,9 @@ export default function HospitalityItemsFieldArray({
             <TableRow>
               <TableCell colSpan={5}>{fieldLabels.items}</TableCell>
 
-              <TableCell align="center">操作</TableCell>
+              <TableCell align="center" sx={{ width: "65px" }}>
+                操作
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
