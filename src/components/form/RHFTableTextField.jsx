@@ -8,6 +8,7 @@ export default function RHFTableTextField({
   rules = {},
   readOnly = false,
   required = true,
+  maxLength,
   ...rest
 }) {
   const { clearErrors, control, getFieldState } = useFormContext();

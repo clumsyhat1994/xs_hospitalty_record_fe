@@ -28,9 +28,10 @@ export default function ItemsTable({ items = [] }) {
       <TableHead>
         <TableRow>
           <TableCell>{fieldLabels.itemName}</TableCell>
-          <TableCell align="right">{fieldLabels.quantity}</TableCell>
-          <TableCell align="right">{fieldLabels.unitPrice}</TableCell>
-          <TableCell align="right">{fieldLabels.lineTotal}</TableCell>
+          <TableCell align="right">{fieldLabels.itemQuantity}</TableCell>
+          <TableCell align="right">{fieldLabels.itemUnitPrice}</TableCell>
+          <TableCell>{fieldLabels.itemSpecification}</TableCell>
+          <TableCell align="right">{fieldLabels.itemLineTotal}</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -39,6 +40,7 @@ export default function ItemsTable({ items = [] }) {
             <TableCell>{it.itemName}</TableCell>
             <TableCell align="right">{it.quantity}</TableCell>
             <TableCell align="right">{it.unitPrice}</TableCell>
+            <TableCell>{it.specification}</TableCell>
             <TableCell align="right">{it.lineTotal}</TableCell>
           </TableRow>
         ))}

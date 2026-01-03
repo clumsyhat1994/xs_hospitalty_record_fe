@@ -14,8 +14,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useCallback, useEffect, useState } from "react";
-import hospitalityApi from "../../api/hospitalityApi";
+import { useEffect } from "react";
 import fieldLabels from "../../constants/recordFieldLabels";
 import { ItemsPopperCell } from "./ItemsPopperCell";
 
@@ -33,8 +32,8 @@ export default function HospitalityRecordsTable({
   records,
   setRecords,
   selectedIds,
-  onToggleAll,
-  onToggleOne,
+  // onToggleAll,
+  // onToggleOne,
   onEditRow,
   onDeleteRow,
   page,
@@ -48,10 +47,10 @@ export default function HospitalityRecordsTable({
   loading,
   setLoading,
 }) {
-  const allSelected =
-    records.length > 0 && selectedIds.length === records.length;
-  const indeterminate =
-    selectedIds.length > 0 && selectedIds.length < records.length;
+  // const allSelected =
+  //   records.length > 0 && selectedIds.length === records.length;
+  // const indeterminate =
+  //   selectedIds.length > 0 && selectedIds.length < records.length;
 
   useEffect(() => {
     const controller = new AbortController();

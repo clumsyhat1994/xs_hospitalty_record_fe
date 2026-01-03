@@ -33,6 +33,7 @@ export default function HospitalityItemsFieldArray({
       itemName: "",
       unitPrice: "",
       quantity: "",
+      specification: "",
       lineTotal: "",
     });
   };
@@ -42,7 +43,7 @@ export default function HospitalityItemsFieldArray({
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell colSpan={4}>{fieldLabels.items}</TableCell>
+              <TableCell colSpan={5}>{fieldLabels.items}</TableCell>
 
               <TableCell align="center">操作</TableCell>
             </TableRow>
@@ -59,7 +60,7 @@ export default function HospitalityItemsFieldArray({
 
             {rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} align="center">
+                <TableCell colSpan={6} align="center">
                   这里空空如也~
                 </TableCell>
               </TableRow>
