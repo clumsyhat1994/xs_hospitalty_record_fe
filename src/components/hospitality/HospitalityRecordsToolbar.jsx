@@ -16,6 +16,7 @@ import BaseComboBox from "../form/BaseComboBox";
 import { useMasterData } from "../../context/MasterDataContext";
 import masterDataApi from "../../api/masterDataApi";
 import { useCallback } from "react";
+import { useAuth } from "../../context/AuthProvider";
 export default function HospitalityRecordsToolbar({
   selectedCount,
   onCreate,
@@ -31,6 +32,7 @@ export default function HospitalityRecordsToolbar({
     (keyword) => masterDataApi.searchCounterParties(keyword),
     []
   );
+  const { isAdmin } = useAuth();
 
   const { departments, setDepartments } = useMasterData();
   const fetchDepartments = useCallback(
@@ -127,19 +129,21 @@ export default function HospitalityRecordsToolbar({
           setOptions={setCounterparties}
           fetchOptions={fetchCounterparties}
         />
-        <BaseComboBox
-          label="报销部门"
-          xs={6}
-          sm={3}
-          getOptionValue={(opt) => opt.code ?? opt}
-          fieldValue={draftFilters.departmentCode}
-          onChange={(v) => {
-            onDraftFilterChange("departmentCode", v);
-          }}
-          options={departments}
-          setOptions={setDepartments}
-          fetchOptions={fetchDepartments}
-        />
+        {isAdmin && (
+          <BaseComboBox
+            label="报销部门"
+            xs={6}
+            sm={3}
+            getOptionValue={(opt) => opt.code ?? opt}
+            fieldValue={draftFilters.departmentCode}
+            onChange={(v) => {
+              onDraftFilterChange("departmentCode", v);
+            }}
+            options={departments}
+            setOptions={setDepartments}
+            fetchOptions={fetchDepartments}
+          />
+        )}
 
         <Grid sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Button
