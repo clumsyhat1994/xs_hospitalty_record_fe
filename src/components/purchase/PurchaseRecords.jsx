@@ -131,7 +131,7 @@ export default function PurchaseRecords() {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
       const dateStr = new Date().toISOString().slice(0, 10);
-      downloadBlob(blob, `purchase-records-${dateStr}.xlsx`);
+      downloadBlob(blob, `采购台帐_${dateStr}.xlsx`);
     } catch (err) {
       console.error("Export failed", err);
       window.alert("导出失败，请联系系统管理员。");
